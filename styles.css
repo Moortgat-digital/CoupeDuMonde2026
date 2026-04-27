@@ -179,6 +179,21 @@ input[type="number"] {
   color: #ffffff;
 }
 
+.ghost-danger {
+  min-height: 34px;
+  padding: 0 10px;
+  border: 1px solid #fecaca;
+  border-radius: 6px;
+  background: #fff1f2;
+  color: #b91c1c;
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.ghost-danger:hover {
+  background: #fee2e2;
+}
+
 .sticky-save {
   position: fixed;
   right: 24px;

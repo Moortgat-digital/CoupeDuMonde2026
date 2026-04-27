@@ -21,6 +21,7 @@ init();
 
 document.querySelector("#saveAdmin").addEventListener("click", saveAdmin);
 document.addEventListener("input", handleScoreInput);
+document.addEventListener("click", handleClearResult);
 
 async function init() {
   adminSecret.value = localStorage.getItem(adminSecretStorageKey) || "";
@@ -61,6 +62,7 @@ function renderAdmin() {
           </td>
           <td colspan="${match.stage === "knockout" ? "2" : "1"}">${match.stage === "knockout" ? knockoutDecisionControls(match, result, false, "result") : "-"}</td>
           ${match.stage === "knockout" ? "" : "<td>-</td>"}
+          <td><button class="ghost-danger" type="button" data-clear-result="${match.id}">Effacer</button></td>
         </tr>
       `,
       };
@@ -122,6 +124,11 @@ async function saveAdmin() {
       homeScore: readNumber(`[data-result-home="${match.id}"]`),
       awayScore: readNumber(`[data-result-away="${match.id}"]`),
     };
+
+    if (!hasScore(result)) {
+      delete state.results[match.id];
+      return;
+    }
 
     if (match.stage === "knockout") {
       Object.assign(result, readKnockoutDecision(match, result, "result"));
@@ -259,6 +266,25 @@ function handleScoreInput(event) {
   if (!matchId) return;
 
   toggleDecisionControls(matchId, "result");
+}
+
+function handleClearResult(event) {
+  const matchId = event.target.dataset.clearResult;
+  if (!matchId) return;
+
+  const homeInput = document.querySelector(`[data-result-home="${matchId}"]`);
+  const awayInput = document.querySelector(`[data-result-away="${matchId}"]`);
+  const qualifiedInput = document.querySelector(`[data-result-qualified="${matchId}"]`);
+  const methodInput = document.querySelector(`[data-result-method="${matchId}"]`);
+
+  if (homeInput) homeInput.value = "";
+  if (awayInput) awayInput.value = "";
+  if (qualifiedInput) qualifiedInput.value = "";
+  if (methodInput) methodInput.value = "extra_time";
+
+  delete state.results[matchId];
+  toggleDecisionControls(matchId, "result");
+  showToast("Résultat effacé. Clique sur Enregistrer pour confirmer.");
 }
 
 function toggleDecisionControls(matchId, prefix) {
