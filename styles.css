@@ -302,6 +302,17 @@ tbody tr:nth-child(even) {
   gap: 6px;
 }
 
+.knockout-decision {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.hidden {
+  display: none !important;
+}
+
 .points {
   display: inline-flex;
   align-items: center;

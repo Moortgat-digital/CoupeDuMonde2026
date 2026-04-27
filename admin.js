@@ -20,6 +20,7 @@ const toast = document.querySelector("#toast");
 init();
 
 document.querySelector("#saveAdmin").addEventListener("click", saveAdmin);
+document.addEventListener("input", handleScoreInput);
 
 async function init() {
   adminSecret.value = localStorage.getItem(adminSecretStorageKey) || "";
@@ -58,8 +59,8 @@ function renderAdmin() {
               <input type="number" min="0" max="30" data-result-away="${match.id}" value="${valueOrEmpty(result.awayScore)}">
             </div>
           </td>
-          <td>${match.stage === "knockout" ? qualifiedSelect(match, result.qualifiedTeam, false, "result-qualified") : "-"}</td>
-          <td>${match.stage === "knockout" ? qualificationMethodSelect(match.id, result.qualificationMethod, false, "result-method") : "-"}</td>
+          <td colspan="${match.stage === "knockout" ? "2" : "1"}">${match.stage === "knockout" ? knockoutDecisionControls(match, result, false, "result") : "-"}</td>
+          ${match.stage === "knockout" ? "" : "<td>-</td>"}
         </tr>
       `,
       };
@@ -117,12 +118,16 @@ async function saveAdmin() {
   localStorage.setItem(adminSecretStorageKey, adminSecret.value);
 
   getConfiguredMatches().forEach((match) => {
-    state.results[match.id] = {
+    const result = {
       homeScore: readNumber(`[data-result-home="${match.id}"]`),
       awayScore: readNumber(`[data-result-away="${match.id}"]`),
-      qualifiedTeam: document.querySelector(`[data-result-qualified="${match.id}"]`)?.value || "",
-      qualificationMethod: document.querySelector(`[data-result-method="${match.id}"]`)?.value || "regular",
     };
+
+    if (match.stage === "knockout") {
+      Object.assign(result, readKnockoutDecision(match, result, "result"));
+    }
+
+    state.results[match.id] = result;
   });
 
   matches
@@ -181,6 +186,16 @@ function teamSelect(attribute, selected) {
   `;
 }
 
+function knockoutDecisionControls(match, result, locked, prefix) {
+  const visible = hasScore(result) && Number(result.homeScore) === Number(result.awayScore);
+  return `
+    <span class="knockout-decision ${visible ? "" : "hidden"}" data-decision="${prefix}-${match.id}">
+      ${qualifiedSelect(match, result.qualifiedTeam, locked, `${prefix}-qualified`)}
+      ${qualificationMethodSelect(match.id, result.qualificationMethod, locked, `${prefix}-method`)}
+    </span>
+  `;
+}
+
 function qualifiedSelect(match, selected, locked, dataAttr) {
   return `
     <select data-${dataAttr}="${match.id}" ${locked ? "disabled" : ""}>
@@ -205,11 +220,59 @@ function teamName(name) {
 function qualificationMethodSelect(matchId, selected = "regular", locked, dataAttr) {
   return `
     <select data-${dataAttr}="${matchId}" ${locked ? "disabled" : ""}>
-      <option value="regular" ${selected === "regular" ? "selected" : ""}>Temps réglementaire</option>
       <option value="extra_time" ${selected === "extra_time" ? "selected" : ""}>Prolongation</option>
       <option value="penalties" ${selected === "penalties" ? "selected" : ""}>TAB</option>
     </select>
   `;
+}
+
+function readKnockoutDecision(match, score, prefix) {
+  return getKnockoutDecision(match, {
+    ...score,
+    qualifiedTeam: document.querySelector(`[data-${prefix}-qualified="${match.id}"]`)?.value || "",
+    qualificationMethod: document.querySelector(`[data-${prefix}-method="${match.id}"]`)?.value || "",
+  });
+}
+
+function getKnockoutDecision(match, score) {
+  if (match.stage !== "knockout" || !hasScore(score)) {
+    return {
+      qualifiedTeam: score.qualifiedTeam || "",
+      qualificationMethod: score.qualificationMethod || "regular",
+    };
+  }
+
+  const diff = Number(score.homeScore) - Number(score.awayScore);
+  if (diff > 0) return { qualifiedTeam: match.home, qualificationMethod: "regular" };
+  if (diff < 0) return { qualifiedTeam: match.away, qualificationMethod: "regular" };
+
+  return {
+    qualifiedTeam: score.qualifiedTeam || "",
+    qualificationMethod: score.qualificationMethod || "extra_time",
+  };
+}
+
+function handleScoreInput(event) {
+  const homeMatchId = event.target.dataset.resultHome;
+  const awayMatchId = event.target.dataset.resultAway;
+  const matchId = homeMatchId || awayMatchId;
+  if (!matchId) return;
+
+  toggleDecisionControls(matchId, "result");
+}
+
+function toggleDecisionControls(matchId, prefix) {
+  const homeScore = readNumber(`[data-${prefix}-home="${matchId}"]`);
+  const awayScore = readNumber(`[data-${prefix}-away="${matchId}"]`);
+  const controls = document.querySelector(`[data-decision="${prefix}-${matchId}"]`);
+  if (!controls) return;
+
+  const isDraw = homeScore !== "" && awayScore !== "" && Number(homeScore) === Number(awayScore);
+  controls.classList.toggle("hidden", !isDraw);
+}
+
+function hasScore(item) {
+  return item.homeScore !== "" && item.homeScore !== null && item.homeScore !== undefined && item.awayScore !== "" && item.awayScore !== null && item.awayScore !== undefined;
 }
 
 function readNumber(selector) {

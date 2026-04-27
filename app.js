@@ -47,9 +47,8 @@ async function loadRemoteState() {
 }
 
 function bindEvents() {
-  profileSelect.addEventListener("change", () => {
-    setSelectedParticipant(profileSelect.value);
-  });
+  profileSelect.addEventListener("change", () => setSelectedParticipant(profileSelect.value));
+  document.addEventListener("input", handleScoreInput);
 
   document.querySelector("#confirmProfile").addEventListener("click", () => {
     setSelectedParticipant(initialProfileSelect.value);
@@ -140,8 +139,7 @@ function renderPredictionRow(match) {
             <input type="number" min="0" max="30" data-pred-home="${match.id}" value="${valueOrEmpty(matchPrediction.homeScore)}" ${locked ? "disabled" : ""}>
             <span>-</span>
             <input type="number" min="0" max="30" data-pred-away="${match.id}" value="${valueOrEmpty(matchPrediction.awayScore)}" ${locked ? "disabled" : ""}>
-            ${match.stage === "knockout" ? qualifiedSelect(match, matchPrediction.qualifiedTeam, locked, "pred-qualified") : ""}
-            ${match.stage === "knockout" ? qualificationMethodSelect(match.id, matchPrediction.qualificationMethod, locked, "pred-method") : ""}
+            ${match.stage === "knockout" ? knockoutDecisionControls(match, matchPrediction, locked, "pred") : ""}
           </div>
           ${locked ? `<div class="locked">Verrouillé</div>` : ""}
         </td>
@@ -200,7 +198,8 @@ function renderLeaderboard() {
 function renderParticipantPick(participant, match) {
   const prediction = state.predictions[participant]?.matches?.[match.id];
   const score = hasScore(prediction || {}) ? `${prediction.homeScore}-${prediction.awayScore}` : "-";
-  const qualified = match.stage === "knockout" && prediction?.qualifiedTeam ? `, ${prediction.qualifiedTeam}` : "";
+  const decision = match.stage === "knockout" && prediction ? getKnockoutDecision(match, prediction) : null;
+  const qualified = decision?.qualifiedTeam ? `, ${decision.qualifiedTeam}${decision.qualificationMethod !== "regular" ? ` (${methodLabel(decision.qualificationMethod)})` : ""}` : "";
   return `
     <div class="prediction-chip">
       <strong>${escapeHtml(participant)}</strong>
@@ -230,12 +229,16 @@ async function savePredictionsFromForm() {
   getConfiguredMatches().forEach((match) => {
     if (isPast(match.kickoff)) return;
 
-    prediction.matches[match.id] = {
+    const matchPrediction = {
       homeScore: readNumber(`[data-pred-home="${match.id}"]`),
       awayScore: readNumber(`[data-pred-away="${match.id}"]`),
-      qualifiedTeam: document.querySelector(`[data-pred-qualified="${match.id}"]`)?.value || "",
-      qualificationMethod: document.querySelector(`[data-pred-method="${match.id}"]`)?.value || "regular",
     };
+
+    if (match.stage === "knockout") {
+      Object.assign(matchPrediction, readKnockoutDecision(match, matchPrediction, "pred"));
+    }
+
+    prediction.matches[match.id] = matchPrediction;
   });
 
   try {
@@ -282,6 +285,8 @@ function scoreChampion(team) {
 
 function scoreMatch(match, prediction, result) {
   if (!hasScore(prediction) || !hasScore(result)) return 0;
+  const predictionDecision = getKnockoutDecision(match, prediction);
+  const resultDecision = getKnockoutDecision(match, result);
 
   let points = 0;
 
@@ -292,9 +297,9 @@ function scoreMatch(match, prediction, result) {
     if (sameGoalDifference(prediction, result)) points += 1;
   }
 
-  if (match.stage === "knockout" && result.qualifiedTeam && prediction.qualifiedTeam === result.qualifiedTeam) {
+  if (match.stage === "knockout" && resultDecision.qualifiedTeam && predictionDecision.qualifiedTeam === resultDecision.qualifiedTeam) {
     points += 2;
-    if (["extra_time", "penalties"].includes(result.qualificationMethod) && prediction.qualificationMethod === result.qualificationMethod) {
+    if (["extra_time", "penalties"].includes(resultDecision.qualificationMethod) && predictionDecision.qualificationMethod === resultDecision.qualificationMethod) {
       points += 1;
     }
   }
@@ -314,6 +319,16 @@ function sameGoalDifference(a, b) {
 
 function hasScore(item) {
   return item.homeScore !== "" && item.homeScore !== null && item.homeScore !== undefined && item.awayScore !== "" && item.awayScore !== null && item.awayScore !== undefined;
+}
+
+function knockoutDecisionControls(match, prediction, locked, prefix) {
+  const visible = hasScore(prediction) && Number(prediction.homeScore) === Number(prediction.awayScore);
+  return `
+    <span class="knockout-decision ${visible ? "" : "hidden"}" data-decision="${prefix}-${match.id}">
+      ${qualifiedSelect(match, prediction.qualifiedTeam, locked, `${prefix}-qualified`)}
+      ${qualificationMethodSelect(match.id, prediction.qualificationMethod, locked, `${prefix}-method`)}
+    </span>
+  `;
 }
 
 function qualifiedSelect(match, selected, locked, dataAttr) {
@@ -340,11 +355,63 @@ function teamName(name) {
 function qualificationMethodSelect(matchId, selected = "regular", locked, dataAttr) {
   return `
     <select data-${dataAttr}="${matchId}" ${locked ? "disabled" : ""}>
-      <option value="regular" ${selected === "regular" ? "selected" : ""}>Temps réglementaire</option>
       <option value="extra_time" ${selected === "extra_time" ? "selected" : ""}>Prolongation</option>
       <option value="penalties" ${selected === "penalties" ? "selected" : ""}>TAB</option>
     </select>
   `;
+}
+
+function readKnockoutDecision(match, score, prefix) {
+  const decision = getKnockoutDecision(match, {
+    ...score,
+    qualifiedTeam: document.querySelector(`[data-${prefix}-qualified="${match.id}"]`)?.value || "",
+    qualificationMethod: document.querySelector(`[data-${prefix}-method="${match.id}"]`)?.value || "",
+  });
+
+  return decision;
+}
+
+function getKnockoutDecision(match, score) {
+  if (match.stage !== "knockout" || !hasScore(score)) {
+    return {
+      qualifiedTeam: score.qualifiedTeam || "",
+      qualificationMethod: score.qualificationMethod || "regular",
+    };
+  }
+
+  const diff = Number(score.homeScore) - Number(score.awayScore);
+  if (diff > 0) return { qualifiedTeam: match.home, qualificationMethod: "regular" };
+  if (diff < 0) return { qualifiedTeam: match.away, qualificationMethod: "regular" };
+
+  return {
+    qualifiedTeam: score.qualifiedTeam || "",
+    qualificationMethod: score.qualificationMethod || "extra_time",
+  };
+}
+
+function handleScoreInput(event) {
+  const homeMatchId = event.target.dataset.predHome;
+  const awayMatchId = event.target.dataset.predAway;
+  const matchId = homeMatchId || awayMatchId;
+  if (!matchId) return;
+
+  toggleDecisionControls(matchId, "pred");
+}
+
+function toggleDecisionControls(matchId, prefix) {
+  const homeScore = readNumber(`[data-${prefix}-home="${matchId}"]`);
+  const awayScore = readNumber(`[data-${prefix}-away="${matchId}"]`);
+  const controls = document.querySelector(`[data-decision="${prefix}-${matchId}"]`);
+  if (!controls) return;
+
+  const isDraw = homeScore !== "" && awayScore !== "" && Number(homeScore) === Number(awayScore);
+  controls.classList.toggle("hidden", !isDraw);
+}
+
+function methodLabel(method) {
+  if (method === "extra_time") return "prol.";
+  if (method === "penalties") return "TAB";
+  return "90 min";
 }
 
 function getConfiguredMatches() {
