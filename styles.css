@@ -25,6 +25,10 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+.admin-page {
+  padding-bottom: 96px;
+}
+
 button,
 input,
 select {
@@ -243,9 +247,11 @@ input[type="number"] {
 
 .table-wrap {
   overflow: auto;
+  max-width: 100%;
   border: 1px solid var(--line);
   border-radius: 8px;
   margin-bottom: 24px;
+  -webkit-overflow-scrolling: touch;
 }
 
 .phase-title {
@@ -416,6 +422,11 @@ tbody tr:nth-child(even) {
   box-shadow: var(--shadow);
 }
 
+.profile-card select,
+.profile-card button {
+  width: 100%;
+}
+
 .team-progress {
   display: grid;
   grid-template-columns: repeat(4, minmax(160px, 1fr));
@@ -553,6 +564,19 @@ dd {
 
   .view {
     padding: 16px;
+  }
+
+  th,
+  td {
+    padding: 8px 10px;
+  }
+
+  .matches-table {
+    min-width: 760px;
+  }
+
+  .overview-table {
+    min-width: 860px;
   }
 
   .rules-grid {
