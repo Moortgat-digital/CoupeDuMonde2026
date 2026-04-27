@@ -417,9 +417,9 @@ tbody tr:nth-child(even) {
 }
 
 .prediction-chip {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(70px, 1fr) auto auto;
   align-items: center;
-  justify-content: space-between;
   gap: 8px;
   min-height: 30px;
   padding: 5px 8px;
@@ -432,6 +432,29 @@ tbody tr:nth-child(even) {
 .prediction-chip span {
   color: var(--muted);
   font-weight: 800;
+}
+
+.point-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 26px;
+  min-height: 24px;
+  border-radius: 999px;
+  background: #eef2f5;
+  color: var(--ink);
+  font-style: normal;
+  font-weight: 900;
+}
+
+.point-badge.good {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.point-badge.exact {
+  background: #16a34a;
+  color: #ffffff;
 }
 
 .profile-gate {

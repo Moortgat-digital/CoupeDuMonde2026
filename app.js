@@ -197,13 +197,18 @@ function renderLeaderboard() {
 
 function renderParticipantPick(participant, match) {
   const prediction = state.predictions[participant]?.matches?.[match.id];
+  if (!hasScore(prediction || {})) return "";
+
   const score = hasScore(prediction || {}) ? `${prediction.homeScore}-${prediction.awayScore}` : "-";
+  const result = state.results[match.id] || {};
+  const points = scoreMatch(match, prediction, result);
   const decision = match.stage === "knockout" && prediction ? getKnockoutDecision(match, prediction) : null;
   const qualified = decision?.qualifiedTeam ? `, ${decision.qualifiedTeam}${decision.qualificationMethod !== "regular" ? ` (${methodLabel(decision.qualificationMethod)})` : ""}` : "";
   return `
     <div class="prediction-chip">
       <strong>${escapeHtml(participant)}</strong>
       <span>${escapeHtml(score)}${escapeHtml(qualified)}</span>
+      ${hasScore(result) ? `<em class="point-badge ${pointsClass(points)}">${points}</em>` : ""}
     </div>
   `;
 }
