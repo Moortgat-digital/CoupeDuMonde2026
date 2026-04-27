@@ -273,6 +273,32 @@ input[type="number"] {
   text-transform: uppercase;
 }
 
+.phase-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.group-a { background: #0f766e; }
+.group-b { background: #dc2626; }
+.group-c { background: #ca8a04; }
+.group-d { background: #0284c7; }
+.group-e { background: #ea580c; }
+.group-f { background: #64748b; }
+.group-g { background: #b45309; }
+.group-h { background: #0891b2; }
+.group-i { background: #64748b; }
+.group-j { background: #f59e0b; color: #15202b; }
+.group-k { background: #db2777; }
+.group-l { background: #be185d; }
+.phase-badge.knockout { background: #334155; }
+
 .admin-subheading {
   margin-top: 24px;
 }

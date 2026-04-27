@@ -128,7 +128,7 @@ function renderPredictionRow(match) {
     stage: match.stage,
     html: `
       <tr>
-        <td>${escapeHtml(match.phase)}</td>
+        <td>${phaseBadge(match.phase)}</td>
         <td>${formatDate(match.kickoff)}</td>
         <td>
           <div class="match-title">${teamName(match.home)} - ${teamName(match.away)}</div>
@@ -418,7 +418,13 @@ function getConfiguredMatches() {
   return matches.map((match) => ({
     ...match,
     ...(state.matchOverrides?.[match.id] || {}),
-  }));
+  })).sort((a, b) => new Date(a.kickoff).getTime() - new Date(b.kickoff).getTime());
+}
+
+function phaseBadge(phase) {
+  const groupMatch = phase.match(/^Groupe ([A-L])$/);
+  if (!groupMatch) return `<span class="phase-badge knockout">${escapeHtml(phase)}</span>`;
+  return `<span class="phase-badge group-${groupMatch[1].toLowerCase()}">${escapeHtml(phase)}</span>`;
 }
 
 function readNumber(selector) {
