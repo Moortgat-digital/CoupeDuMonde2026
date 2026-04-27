@@ -30,6 +30,7 @@
             <button id="saveAdmin" class="primary-action" type="button">Enregistrer</button>
           </div>
 
+          <h3 class="phase-title">Phase de poule</h3>
           <div class="table-wrap">
             <table class="matches-table">
               <thead>
@@ -42,7 +43,24 @@
                   <th>Mode qualification</th>
                 </tr>
               </thead>
-              <tbody id="adminBody"></tbody>
+              <tbody id="adminGroupBody"></tbody>
+            </table>
+          </div>
+
+          <h3 class="phase-title">Phase finale</h3>
+          <div class="table-wrap">
+            <table class="matches-table">
+              <thead>
+                <tr>
+                  <th>Phase</th>
+                  <th>Date</th>
+                  <th>Match</th>
+                  <th>Score réel 90 min</th>
+                  <th>Qualifié</th>
+                  <th>Mode qualification</th>
+                </tr>
+              </thead>
+              <tbody id="adminKnockoutBody"></tbody>
             </table>
           </div>
 

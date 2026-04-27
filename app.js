@@ -1,4 +1,4 @@
-const { tournamentStart, participants, teams, matches, championProgress } = window.APP_DATA;
+const { tournamentStart, participants, teams, matches, championProgress, flagCodes } = window.APP_DATA;
 const profileStorageKey = "cdm2026-selected-profile";
 
 const defaultState = {
@@ -9,13 +9,19 @@ const defaultState = {
 };
 
 let state = structuredClone(defaultState);
-let selectedParticipant = localStorage.getItem(profileStorageKey) || participants[0];
+let selectedParticipant = localStorage.getItem(profileStorageKey) || "";
+let profileConfirmed = false;
 
 const profileSelect = document.querySelector("#profileSelect");
+const initialProfileSelect = document.querySelector("#initialProfileSelect");
+const profileGate = document.querySelector("#profileGate");
 const championPick = document.querySelector("#championPick");
 const championLock = document.querySelector("#championLock");
 const lockHint = document.querySelector("#lockHint");
-const matchesBody = document.querySelector("#matchesBody");
+const groupMatchesBody = document.querySelector("#groupMatchesBody");
+const knockoutMatchesBody = document.querySelector("#knockoutMatchesBody");
+const overviewGroupBody = document.querySelector("#overviewGroupBody");
+const overviewKnockoutBody = document.querySelector("#overviewKnockoutBody");
 const leaderboard = document.querySelector("#leaderboard");
 const toast = document.querySelector("#toast");
 
@@ -42,9 +48,13 @@ async function loadRemoteState() {
 
 function bindEvents() {
   profileSelect.addEventListener("change", () => {
-    selectedParticipant = profileSelect.value;
-    localStorage.setItem(profileStorageKey, selectedParticipant);
-    renderAll();
+    setSelectedParticipant(profileSelect.value);
+  });
+
+  document.querySelector("#confirmProfile").addEventListener("click", () => {
+    setSelectedParticipant(initialProfileSelect.value);
+    profileConfirmed = true;
+    profileGate.classList.remove("visible");
   });
 
   document.querySelectorAll(".tab").forEach((tab) => {
@@ -61,15 +71,21 @@ function bindEvents() {
 }
 
 function renderAll() {
+  renderProfileGate();
   renderPredictions();
+  renderOverview();
   renderLeaderboard();
 }
 
 function renderProfiles() {
-  profileSelect.innerHTML = participants
+  const options = participants
     .map((name) => `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`)
     .join("");
+  profileSelect.innerHTML = options;
+  initialProfileSelect.innerHTML = options;
+  if (!selectedParticipant) selectedParticipant = participants[0];
   profileSelect.value = selectedParticipant;
+  initialProfileSelect.value = selectedParticipant;
 }
 
 function renderChampionOptions() {
@@ -77,6 +93,12 @@ function renderChampionOptions() {
     `<option value="">À choisir</option>`,
     ...teams.map((team) => `<option value="${escapeHtml(team)}">${escapeHtml(team)}</option>`),
   ].join("");
+}
+
+function renderProfileGate() {
+  if (!profileConfirmed) {
+    profileGate.classList.add("visible");
+  }
 }
 
 function renderPredictions() {
@@ -90,38 +112,68 @@ function renderPredictions() {
   lockHint.textContent =
     "Un score reste modifiable jusqu'au coup d'envoi du match. Le vainqueur final est modifiable jusqu'au lancement du tournoi.";
 
-  matchesBody.innerHTML = getConfiguredMatches()
-    .map((match) => {
-      const matchPrediction = prediction.matches?.[match.id] || {};
-      const result = state.results[match.id] || {};
-      const locked = isPast(match.kickoff);
-      const points = scoreMatch(match, matchPrediction, result);
-      const resultText = hasScore(result) ? `${result.homeScore}-${result.awayScore}` : "-";
+  const rows = getConfiguredMatches().map(renderPredictionRow);
+  groupMatchesBody.innerHTML = rows.filter((row) => row.stage === "group").map((row) => row.html).join("");
+  knockoutMatchesBody.innerHTML = rows.filter((row) => row.stage === "knockout").map((row) => row.html).join("");
+}
 
-      return `
+function renderPredictionRow(match) {
+  const prediction = getParticipantPrediction(selectedParticipant);
+  const matchPrediction = prediction.matches?.[match.id] || {};
+  const result = state.results[match.id] || {};
+  const locked = isPast(match.kickoff);
+  const points = scoreMatch(match, matchPrediction, result);
+  const resultText = hasScore(result) ? `${result.homeScore}-${result.awayScore}` : "-";
+
+  return {
+    stage: match.stage,
+    html: `
+      <tr>
+        <td>${escapeHtml(match.phase)}</td>
+        <td>${formatDate(match.kickoff)}</td>
+        <td>
+          <div class="match-title">${teamName(match.home)} - ${teamName(match.away)}</div>
+          <div class="match-meta">${formatTime(match.kickoff)}</div>
+        </td>
+        <td>
+          <div class="score-inputs">
+            <input type="number" min="0" max="30" data-pred-home="${match.id}" value="${valueOrEmpty(matchPrediction.homeScore)}" ${locked ? "disabled" : ""}>
+            <span>-</span>
+            <input type="number" min="0" max="30" data-pred-away="${match.id}" value="${valueOrEmpty(matchPrediction.awayScore)}" ${locked ? "disabled" : ""}>
+            ${match.stage === "knockout" ? qualifiedSelect(match, matchPrediction.qualifiedTeam, locked, "pred-qualified") : ""}
+            ${match.stage === "knockout" ? qualificationMethodSelect(match.id, matchPrediction.qualificationMethod, locked, "pred-method") : ""}
+          </div>
+          ${locked ? `<div class="locked">Verrouillé</div>` : ""}
+        </td>
+        <td>${escapeHtml(resultText)}</td>
+        <td><span class="points ${pointsClass(points)}">${points}</span></td>
+      </tr>
+    `,
+  };
+}
+
+function renderOverview() {
+  const rows = getConfiguredMatches()
+    .map((match) => {
+      const result = state.results[match.id] || {};
+      const resultText = hasScore(result) ? `${result.homeScore}-${result.awayScore}` : "-";
+      return {
+        stage: match.stage,
+        html: `
         <tr>
-          <td>${escapeHtml(match.phase)}</td>
-          <td>${formatDate(match.kickoff)}</td>
+          <td>${formatDate(match.kickoff)}<div class="match-meta">${formatTime(match.kickoff)}</div></td>
           <td>
-            <div class="match-title">${escapeHtml(match.home)} - ${escapeHtml(match.away)}</div>
-            <div class="match-meta">${formatTime(match.kickoff)}</div>
-          </td>
-          <td>
-            <div class="score-inputs">
-              <input type="number" min="0" max="30" data-pred-home="${match.id}" value="${valueOrEmpty(matchPrediction.homeScore)}" ${locked ? "disabled" : ""}>
-              <span>-</span>
-              <input type="number" min="0" max="30" data-pred-away="${match.id}" value="${valueOrEmpty(matchPrediction.awayScore)}" ${locked ? "disabled" : ""}>
-              ${match.stage === "knockout" ? qualifiedSelect(match, matchPrediction.qualifiedTeam, locked, "pred-qualified") : ""}
-              ${match.stage === "knockout" ? qualificationMethodSelect(match.id, matchPrediction.qualificationMethod, locked, "pred-method") : ""}
-            </div>
-            ${locked ? `<div class="locked">Verrouillé</div>` : ""}
+            <div class="match-title">${teamName(match.home)} - ${teamName(match.away)}</div>
           </td>
           <td>${escapeHtml(resultText)}</td>
-          <td><span class="points ${pointsClass(points)}">${points}</span></td>
+          <td><div class="prediction-grid">${participants.map((participant) => renderParticipantPick(participant, match)).join("")}</div></td>
         </tr>
-      `;
-    })
-    .join("");
+      `,
+      };
+    });
+
+  overviewGroupBody.innerHTML = rows.filter((row) => row.stage === "group").map((row) => row.html).join("");
+  overviewKnockoutBody.innerHTML = rows.filter((row) => row.stage === "knockout").map((row) => row.html).join("");
 }
 
 function renderLeaderboard() {
@@ -143,6 +195,27 @@ function renderLeaderboard() {
     `,
     )
     .join("");
+}
+
+function renderParticipantPick(participant, match) {
+  const prediction = state.predictions[participant]?.matches?.[match.id];
+  const score = hasScore(prediction || {}) ? `${prediction.homeScore}-${prediction.awayScore}` : "-";
+  const qualified = match.stage === "knockout" && prediction?.qualifiedTeam ? `, ${prediction.qualifiedTeam}` : "";
+  return `
+    <div class="prediction-chip">
+      <strong>${escapeHtml(participant)}</strong>
+      <span>${escapeHtml(score)}${escapeHtml(qualified)}</span>
+    </div>
+  `;
+}
+
+function setSelectedParticipant(participant) {
+  selectedParticipant = participant;
+  profileConfirmed = true;
+  localStorage.setItem(profileStorageKey, selectedParticipant);
+  profileSelect.value = selectedParticipant;
+  initialProfileSelect.value = selectedParticipant;
+  renderAll();
 }
 
 async function savePredictionsFromForm() {
@@ -250,6 +323,17 @@ function qualifiedSelect(match, selected, locked, dataAttr) {
       <option value="${escapeHtml(match.home)}" ${selected === match.home ? "selected" : ""}>${escapeHtml(match.home)}</option>
       <option value="${escapeHtml(match.away)}" ${selected === match.away ? "selected" : ""}>${escapeHtml(match.away)}</option>
     </select>
+  `;
+}
+
+function teamName(name) {
+  const flagCode = flagCodes?.[name];
+  if (!flagCode) return `<span>${escapeHtml(name)}</span>`;
+  return `
+    <span class="team-name">
+      <img class="flag" src="https://flagcdn.com/w40/${flagCode}.png" srcset="https://flagcdn.com/w80/${flagCode}.png 2x" alt="">
+      <span>${escapeHtml(name)}</span>
+    </span>
   `;
 }
 

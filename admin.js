@@ -1,4 +1,4 @@
-const { teams, matches } = window.APP_DATA;
+const { teams, matches, flagCodes } = window.APP_DATA;
 const adminSecretStorageKey = "cdm2026-admin-secret";
 
 const defaultState = {
@@ -10,7 +10,8 @@ const defaultState = {
 };
 
 let state = structuredClone(defaultState);
-const adminBody = document.querySelector("#adminBody");
+const adminGroupBody = document.querySelector("#adminGroupBody");
+const adminKnockoutBody = document.querySelector("#adminKnockoutBody");
 const knockoutSetup = document.querySelector("#knockoutSetup");
 const teamProgress = document.querySelector("#teamProgress");
 const adminSecret = document.querySelector("#adminSecret");
@@ -40,14 +41,16 @@ async function loadRemoteState() {
 }
 
 function renderAdmin() {
-  adminBody.innerHTML = getConfiguredMatches()
+  const rows = getConfiguredMatches()
     .map((match) => {
       const result = state.results[match.id] || {};
-      return `
+      return {
+        stage: match.stage,
+        html: `
         <tr>
           <td>${escapeHtml(match.phase)}</td>
           <td>${formatDate(match.kickoff)} ${formatTime(match.kickoff)}</td>
-          <td><strong>${escapeHtml(match.home)} - ${escapeHtml(match.away)}</strong></td>
+          <td><strong>${teamName(match.home)} - ${teamName(match.away)}</strong></td>
           <td>
             <div class="score-inputs">
               <input type="number" min="0" max="30" data-result-home="${match.id}" value="${valueOrEmpty(result.homeScore)}">
@@ -58,9 +61,12 @@ function renderAdmin() {
           <td>${match.stage === "knockout" ? qualifiedSelect(match, result.qualifiedTeam, false, "result-qualified") : "-"}</td>
           <td>${match.stage === "knockout" ? qualificationMethodSelect(match.id, result.qualificationMethod, false, "result-method") : "-"}</td>
         </tr>
-      `;
-    })
-    .join("");
+      `,
+      };
+    });
+
+  adminGroupBody.innerHTML = rows.filter((row) => row.stage === "group").map((row) => row.html).join("");
+  adminKnockoutBody.innerHTML = rows.filter((row) => row.stage === "knockout").map((row) => row.html).join("");
 }
 
 function renderKnockoutSetup() {
@@ -182,6 +188,17 @@ function qualifiedSelect(match, selected, locked, dataAttr) {
       <option value="${escapeHtml(match.home)}" ${selected === match.home ? "selected" : ""}>${escapeHtml(match.home)}</option>
       <option value="${escapeHtml(match.away)}" ${selected === match.away ? "selected" : ""}>${escapeHtml(match.away)}</option>
     </select>
+  `;
+}
+
+function teamName(name) {
+  const flagCode = flagCodes?.[name];
+  if (!flagCode) return `<span>${escapeHtml(name)}</span>`;
+  return `
+    <span class="team-name">
+      <img class="flag" src="https://flagcdn.com/w40/${flagCode}.png" srcset="https://flagcdn.com/w80/${flagCode}.png 2x" alt="">
+      <span>${escapeHtml(name)}</span>
+    </span>
   `;
 }
 
