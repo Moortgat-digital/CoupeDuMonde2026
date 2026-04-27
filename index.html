@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Pronostics Coupe du Monde 2026</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <header class="app-header">
+      <div>
+        <p class="eyebrow">Interne entreprise</p>
+        <h1>Pronostics Coupe du Monde 2026</h1>
+      </div>
+      <div class="profile-panel">
+        <label for="profileSelect">Profil</label>
+        <select id="profileSelect"></select>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="workspace">
+        <nav class="tabs" aria-label="Vues">
+          <button class="tab active" data-view="predictions" type="button">Pronostics</button>
+          <button class="tab" data-view="leaderboard" type="button">Classement</button>
+          <button class="tab" data-view="rules" type="button">Barème</button>
+        </nav>
+
+        <section id="predictionsView" class="view active-view">
+          <div class="section-heading">
+            <div>
+              <h2>Mes pronostics</h2>
+              <p id="lockHint"></p>
+            </div>
+            <button id="savePredictions" class="primary-action" type="button">Enregistrer</button>
+          </div>
+
+          <div class="champion-row">
+            <label for="championPick">Vainqueur final</label>
+            <select id="championPick"></select>
+            <span id="championLock" class="status-pill"></span>
+          </div>
+
+          <div class="table-wrap">
+            <table class="matches-table">
+              <thead>
+                <tr>
+                  <th>Phase</th>
+                  <th>Date</th>
+                  <th>Match</th>
+                  <th>Mon prono 90 min</th>
+                  <th>Résultat 90 min</th>
+                  <th>Pts</th>
+                </tr>
+              </thead>
+              <tbody id="matchesBody"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="leaderboardView" class="view">
+          <div class="section-heading">
+            <div>
+              <h2>Classement général</h2>
+              <p>Points calculés à partir des résultats saisis en admin.</p>
+            </div>
+          </div>
+          <div id="leaderboard" class="leaderboard"></div>
+        </section>
+
+        <section id="rulesView" class="view">
+          <div class="rules-grid">
+            <article class="rule-block">
+              <h2>Début de tournoi</h2>
+              <dl>
+                <div><dt>Mauvais résultat</dt><dd>0 pt</dd></div>
+                <div><dt>Bonne tendance</dt><dd>1 pt</dd></div>
+                <div><dt>Bon écart de buts</dt><dd>+1 pt</dd></div>
+                <div><dt>Score exact</dt><dd>3 pts</dd></div>
+              </dl>
+            </article>
+            <article class="rule-block">
+              <h2>À partir des seizièmes</h2>
+              <dl>
+                <div><dt>Mauvais résultat</dt><dd>0 pt</dd></div>
+                <div><dt>Bonne tendance du score</dt><dd>1 pt</dd></div>
+                <div><dt>Score exact</dt><dd>3 pts</dd></div>
+                <div><dt>Bonne équipe qualifiée</dt><dd>+2 pts</dd></div>
+                <div><dt>Qualification en prolongation ou aux TAB correctement prévue</dt><dd>+1 pt</dd></div>
+              </dl>
+            </article>
+            <article class="rule-block">
+              <h2>Bonus vainqueur</h2>
+              <dl>
+                <div><dt>Qualifié en 1/16</dt><dd>+1 pt</dd></div>
+                <div><dt>Qualifié en 1/8</dt><dd>+2 pts</dd></div>
+                <div><dt>Qualifié en 1/4</dt><dd>+3 pts</dd></div>
+                <div><dt>Qualifié en 1/2</dt><dd>+4 pts</dd></div>
+                <div><dt>Finaliste</dt><dd>+5 pts</dd></div>
+                <div><dt>Champion</dt><dd>+7 pts</dd></div>
+              </dl>
+            </article>
+          </div>
+        </section>
+
+      </section>
+    </main>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <script src="data.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>

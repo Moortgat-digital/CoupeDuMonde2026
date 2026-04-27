@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Admin - Pronostics Coupe du Monde 2026</title>
+    <link rel="stylesheet" href="../styles.css">
+  </head>
+  <body>
+    <header class="app-header">
+      <div>
+        <p class="eyebrow">Administration</p>
+        <h1>Paramétrage Coupe du Monde 2026</h1>
+      </div>
+      <div class="admin-access">
+        <label for="adminSecret">Code admin</label>
+        <input id="adminSecret" type="password" autocomplete="current-password" placeholder="ADMIN_SECRET">
+        <a class="nav-link" href="../index.html">Retour pronostics</a>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="workspace">
+        <section class="view active-view">
+          <div class="section-heading">
+            <div>
+              <h2>Résultats des matchs</h2>
+              <p>Les scores saisis ici correspondent au score à la fin du temps réglementaire.</p>
+            </div>
+            <button id="saveAdmin" class="primary-action" type="button">Enregistrer</button>
+          </div>
+
+          <div class="table-wrap">
+            <table class="matches-table">
+              <thead>
+                <tr>
+                  <th>Phase</th>
+                  <th>Date</th>
+                  <th>Match</th>
+                  <th>Score réel 90 min</th>
+                  <th>Qualifié</th>
+                  <th>Mode qualification</th>
+                </tr>
+              </thead>
+              <tbody id="adminBody"></tbody>
+            </table>
+          </div>
+
+          <div class="section-heading admin-subheading">
+            <div>
+              <h2>Affiches de phase finale</h2>
+              <p>À compléter quand les qualifiés sont connus, à partir des seizièmes.</p>
+            </div>
+          </div>
+          <div id="knockoutSetup" class="setup-grid"></div>
+
+          <div class="section-heading admin-subheading">
+            <div>
+              <h2>Parcours des équipes</h2>
+              <p>Ces statuts alimentent le bonus du vainqueur final pronostiqué.</p>
+            </div>
+          </div>
+          <div id="teamProgress" class="team-progress"></div>
+        </section>
+      </section>
+    </main>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <script src="../data.js"></script>
+    <script src="../admin.js"></script>
+  </body>
+</html>

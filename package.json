@@ -1,0 +1,12 @@
+{
+  "name": "pronostics-coupe-du-monde-2026",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check": "node --check data.js && node --check app.js && node --check admin.js && node --check api/state.js"
+  },
+  "dependencies": {
+    "@vercel/blob": "^2.3.3"
+  }
+}
