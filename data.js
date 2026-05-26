@@ -4,7 +4,7 @@ window.APP_DATA = {
     "Constantin",
     "Arnaud",
     "Thomas",
-    "Raphaël",
+    "John",
     "Lucas",
     "Orianne",
     "Laurent B",
