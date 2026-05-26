@@ -564,10 +564,22 @@ tbody tr:nth-child(even) {
 }
 
 .leader-points {
+  display: grid;
+  gap: 2px;
   justify-self: end;
+  text-align: right;
+}
+
+.leader-points strong {
   font-size: 22px;
   font-weight: 900;
   color: var(--brand);
+}
+
+.leader-points span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
 }
 
 .rules-grid {

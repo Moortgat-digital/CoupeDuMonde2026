@@ -182,19 +182,26 @@ function renderLeaderboard() {
     .map((participant) => ({
       participant,
       points: scoreParticipant(participant),
+      exactScores: countExactScores(participant),
     }))
-    .sort((a, b) => b.points - a.points || a.participant.localeCompare(b.participant, "fr"));
+    .sort((a, b) => b.points - a.points || b.exactScores - a.exactScores || a.participant.localeCompare(b.participant, "fr"));
 
   leaderboard.innerHTML = rows
-    .map(
-      (row, index) => `
+    .map((row, index) => {
+      const previous = rows[index - 1];
+      const rank = previous && previous.points === row.points && previous.exactScores === row.exactScores ? rows[index - 1].rank : index + 1;
+      row.rank = rank;
+      return `
       <div class="leader-row">
-        <div class="rank">${index + 1}</div>
+        <div class="rank">${rank}</div>
         <div class="leader-name">${escapeHtml(row.participant)}</div>
-        <div class="leader-points">${row.points}</div>
+        <div class="leader-points">
+          <strong>${row.points}</strong>
+          <span>${row.exactScores} score${row.exactScores > 1 ? "s" : ""} exact${row.exactScores > 1 ? "s" : ""}</span>
+        </div>
       </div>
-    `,
-    )
+    `;
+    })
     .join("");
 }
 
@@ -286,6 +293,13 @@ function scoreParticipant(participant) {
   return matchPoints + scoreChampion(prediction.champion);
 }
 
+function countExactScores(participant) {
+  const prediction = getParticipantPrediction(participant);
+  return getConfiguredMatches().reduce((total, match) => {
+    return total + (isExactScore(prediction.matches?.[match.id] || {}, state.results[match.id] || {}) ? 1 : 0);
+  }, 0);
+}
+
 function scoreChampion(team) {
   if (!team) return 0;
   return championProgress[state.teamProgress[team] || "none"] || 0;
@@ -298,7 +312,7 @@ function scoreMatch(match, prediction, result) {
 
   let points = 0;
 
-  if (Number(prediction.homeScore) === Number(result.homeScore) && Number(prediction.awayScore) === Number(result.awayScore)) {
+  if (isExactScore(prediction, result)) {
     points = 3;
   } else if (sameOutcome(prediction, result)) {
     points = 1;
@@ -313,6 +327,10 @@ function scoreMatch(match, prediction, result) {
   }
 
   return points;
+}
+
+function isExactScore(prediction, result) {
+  return hasScore(prediction) && hasScore(result) && Number(prediction.homeScore) === Number(result.homeScore) && Number(prediction.awayScore) === Number(result.awayScore);
 }
 
 function sameOutcome(a, b) {
