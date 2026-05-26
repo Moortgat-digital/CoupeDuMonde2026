@@ -186,23 +186,39 @@ function renderLeaderboard() {
     }))
     .sort((a, b) => b.points - a.points || b.exactScores - a.exactScores || a.participant.localeCompare(b.participant, "fr"));
 
-  leaderboard.innerHTML = rows
+  let currentRank = 0;
+  const body = rows
     .map((row, index) => {
       const previous = rows[index - 1];
-      const rank = previous && previous.points === row.points && previous.exactScores === row.exactScores ? rows[index - 1].rank : index + 1;
-      row.rank = rank;
+      const isTiedWithPrevious = previous && previous.points === row.points && previous.exactScores === row.exactScores;
+      if (!isTiedWithPrevious) currentRank += 1;
+
       return `
-      <div class="leader-row">
-        <div class="rank">${rank}</div>
-        <div class="leader-name">${escapeHtml(row.participant)}</div>
-        <div class="leader-points">
-          <strong>${row.points}</strong>
-          <span>${row.exactScores} score${row.exactScores > 1 ? "s" : ""} exact${row.exactScores > 1 ? "s" : ""}</span>
-        </div>
-      </div>
-    `;
+        <tr>
+          <td class="rank">${isTiedWithPrevious ? "-" : currentRank}</td>
+          <td class="leader-name">${escapeHtml(row.participant)}</td>
+          <td class="leader-points">${row.points}</td>
+          <td>${row.exactScores}</td>
+        </tr>
+      `;
     })
     .join("");
+
+  leaderboard.innerHTML = `
+    <div class="table-wrap leaderboard-wrap">
+      <table class="matches-table leaderboard-table">
+        <thead>
+          <tr>
+            <th>Rang</th>
+            <th>Participant</th>
+            <th>Points</th>
+            <th>Scores exacts</th>
+          </tr>
+        </thead>
+        <tbody>${body}</tbody>
+      </table>
+    </div>
+  `;
 }
 
 function renderParticipantPick(participant, match) {

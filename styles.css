@@ -431,8 +431,7 @@ tbody tr:nth-child(even) {
 }
 
 .leaderboard {
-  display: grid;
-  gap: 10px;
+  display: block;
 }
 
 .overview-table {
@@ -543,20 +542,18 @@ tbody tr:nth-child(even) {
   font-size: 16px;
 }
 
-.leader-row {
-  display: grid;
-  grid-template-columns: 48px minmax(150px, 1fr) 90px;
-  align-items: center;
-  min-height: 54px;
-  padding: 0 14px;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  background: #fbfcfd;
+.leaderboard-wrap {
+  margin-bottom: 0;
+}
+
+.leaderboard-table {
+  min-width: 520px;
 }
 
 .rank {
   font-size: 20px;
   font-weight: 900;
+  width: 80px;
 }
 
 .leader-name {
@@ -564,22 +561,10 @@ tbody tr:nth-child(even) {
 }
 
 .leader-points {
-  display: grid;
-  gap: 2px;
-  justify-self: end;
-  text-align: right;
-}
-
-.leader-points strong {
   font-size: 22px;
   font-weight: 900;
   color: var(--brand);
-}
-
-.leader-points span {
-  color: var(--muted);
-  font-size: 12px;
-  font-weight: 800;
+  text-align: right;
 }
 
 .rules-grid {
