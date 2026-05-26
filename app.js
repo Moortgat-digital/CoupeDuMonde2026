@@ -197,7 +197,7 @@ function renderLeaderboard() {
         <tr>
           <td class="rank">${isTiedWithPrevious ? "-" : currentRank}</td>
           <td class="leader-name">${escapeHtml(row.participant)}</td>
-          <td class="leader-points">${row.points}</td>
+          <td class="leader-points">${row.points} pts</td>
           <td>${row.exactScores}</td>
         </tr>
       `;
