@@ -20,6 +20,8 @@ const championLock = document.querySelector("#championLock");
 const lockHint = document.querySelector("#lockHint");
 const groupMatchesBody = document.querySelector("#groupMatchesBody");
 const knockoutMatchesBody = document.querySelector("#knockoutMatchesBody");
+const overviewChampionSection = document.querySelector("#overviewChampionSection");
+const overviewChampionPicks = document.querySelector("#overviewChampionPicks");
 const overviewGroupBody = document.querySelector("#overviewGroupBody");
 const overviewKnockoutBody = document.querySelector("#overviewKnockoutBody");
 const leaderboard = document.querySelector("#leaderboard");
@@ -154,6 +156,8 @@ function renderPredictionRow(match) {
 }
 
 function renderOverview() {
+  renderOverviewChampionPicks();
+
   const rows = getConfiguredMatches()
     .map((match) => {
       const result = state.results[match.id] || {};
@@ -175,6 +179,28 @@ function renderOverview() {
 
   overviewGroupBody.innerHTML = rows.filter((row) => row.stage === "group").map((row) => row.html).join("");
   overviewKnockoutBody.innerHTML = rows.filter((row) => row.stage === "knockout").map((row) => row.html).join("");
+}
+
+function renderOverviewChampionPicks() {
+  const picks = participants
+    .map((participant) => ({
+      participant,
+      champion: state.predictions[participant]?.champion || "",
+    }))
+    .filter((pick) => pick.champion)
+    .sort((a, b) => a.participant.localeCompare(b.participant, "fr", { sensitivity: "base" }));
+
+  overviewChampionSection.hidden = picks.length === 0;
+  overviewChampionPicks.innerHTML = picks
+    .map(
+      (pick) => `
+        <div class="champion-pick">
+          <strong>${escapeHtml(pick.participant)}</strong>
+          <span>${teamName(pick.champion)}</span>
+        </div>
+      `,
+    )
+    .join("");
 }
 
 function renderLeaderboard() {
