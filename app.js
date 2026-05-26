@@ -77,12 +77,15 @@ function renderAll() {
 }
 
 function renderProfiles() {
-  const options = participants
+  const sortedParticipants = [...participants].sort((a, b) =>
+    a.localeCompare(b, "fr", { sensitivity: "base" })
+  );
+  const options = sortedParticipants
     .map((name) => `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`)
     .join("");
   profileSelect.innerHTML = options;
   initialProfileSelect.innerHTML = options;
-  if (!selectedParticipant) selectedParticipant = participants[0];
+  if (!selectedParticipant) selectedParticipant = sortedParticipants[0];
   profileSelect.value = selectedParticipant;
   initialProfileSelect.value = selectedParticipant;
 }
