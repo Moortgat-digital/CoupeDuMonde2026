@@ -266,6 +266,35 @@ input[type="number"] {
   -webkit-overflow-scrolling: touch;
 }
 
+.major-section-title {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 28px 0 12px;
+}
+
+.major-section-title h3,
+.major-section-title.solo-title {
+  color: var(--ink);
+  font-size: clamp(22px, 3vw, 30px);
+  font-weight: 900;
+  line-height: 1.15;
+}
+
+.warning-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  padding: 0 10px;
+  border: 1px solid #fed7aa;
+  border-radius: 999px;
+  background: #fffbeb;
+  color: #9a3412;
+  font-size: 13px;
+  font-weight: 800;
+}
+
 .phase-title {
   margin: 22px 0 10px;
   color: var(--brand);
@@ -625,6 +654,11 @@ dd {
 
   .view {
     padding: 16px;
+  }
+
+  .major-section-title {
+    align-items: flex-start;
+    flex-direction: column;
   }
 
   th,
