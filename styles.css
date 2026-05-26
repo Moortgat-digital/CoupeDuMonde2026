@@ -491,37 +491,43 @@ tbody tr:nth-child(even) {
 }
 
 .points.score-miss,
-.point-badge.score-miss {
+.point-badge.score-miss,
+.rule-score.score-miss {
   background: #fed7aa;
   color: #7c2d12;
 }
 
 .points.score-good,
-.point-badge.score-good {
+.point-badge.score-good,
+.rule-score.score-good {
   background: #dcfce7;
   color: #166534;
 }
 
 .points.score-close,
-.point-badge.score-close {
+.point-badge.score-close,
+.rule-score.score-close {
   background: #86efac;
   color: #14532d;
 }
 
 .points.score-exact,
-.point-badge.score-exact {
+.point-badge.score-exact,
+.rule-score.score-exact {
   background: #16a34a;
   color: #ffffff;
 }
 
 .points.score-bonus,
-.point-badge.score-bonus {
+.point-badge.score-bonus,
+.rule-score.score-bonus {
   background: #60a5fa;
   color: #082f49;
 }
 
 .points.score-bonus-high,
-.point-badge.score-bonus-high {
+.point-badge.score-bonus-high,
+.rule-score.score-bonus-high {
   background: #1d4ed8;
   color: #ffffff;
 }
@@ -675,6 +681,16 @@ dt {
 dd {
   margin: 0;
   font-weight: 900;
+}
+
+.rule-score {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 58px;
+  min-height: 26px;
+  padding: 0 8px;
+  border-radius: 6px;
 }
 
 .toast {
