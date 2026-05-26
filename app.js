@@ -212,6 +212,9 @@ function renderLeaderboard() {
     }))
     .sort((a, b) => b.points - a.points || b.exactScores - a.exactScores || a.participant.localeCompare(b.participant, "fr"));
 
+  const pointValues = rows.map((row) => row.points);
+  const minPoints = Math.min(...pointValues);
+  const maxPoints = Math.max(...pointValues);
   let currentRank = 0;
   const body = rows
     .map((row, index) => {
@@ -223,7 +226,7 @@ function renderLeaderboard() {
         <tr>
           <td class="rank">${isTiedWithPrevious ? "-" : currentRank}</td>
           <td class="leader-name">${escapeHtml(row.participant)}</td>
-          <td class="leader-points">${row.points} pts</td>
+          <td class="leader-points ${leaderboardPointsClass(row.points, minPoints, maxPoints)}">${row.points} pts</td>
           <td>${row.exactScores}</td>
         </tr>
       `;
@@ -517,9 +520,23 @@ function valueOrEmpty(value) {
 }
 
 function pointsClass(points) {
-  if (points >= 3) return "exact";
-  if (points > 0) return "good";
-  return "";
+  if (points >= 5) return "score-bonus-high";
+  if (points === 4) return "score-bonus";
+  if (points === 3) return "score-exact";
+  if (points === 2) return "score-close";
+  if (points === 1) return "score-good";
+  return "score-miss";
+}
+
+function leaderboardPointsClass(points, minPoints, maxPoints) {
+  if (points === 0) return "leader-score-zero";
+  if (minPoints === maxPoints) return "leader-score-top";
+
+  const ratio = (points - minPoints) / (maxPoints - minPoints);
+  if (ratio >= 0.8) return "leader-score-top";
+  if (ratio >= 0.55) return "leader-score-high";
+  if (ratio >= 0.3) return "leader-score-mid";
+  return "leader-score-low";
 }
 
 function showToast(message) {
