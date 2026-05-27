@@ -24,6 +24,8 @@ const overviewChampionSection = document.querySelector("#overviewChampionSection
 const overviewChampionPicks = document.querySelector("#overviewChampionPicks");
 const overviewGroupBody = document.querySelector("#overviewGroupBody");
 const overviewKnockoutBody = document.querySelector("#overviewKnockoutBody");
+const resultsGroups = document.querySelector("#resultsGroups");
+const resultsKnockoutBody = document.querySelector("#resultsKnockoutBody");
 const leaderboard = document.querySelector("#leaderboard");
 const toast = document.querySelector("#toast");
 
@@ -75,6 +77,7 @@ function renderAll() {
   renderProfileGate();
   renderPredictions();
   renderOverview();
+  renderResults();
   renderLeaderboard();
 }
 
@@ -139,7 +142,7 @@ function renderPredictionRow(match) {
           <div class="match-title">${teamName(match.home)} - ${teamName(match.away)}</div>
           <div class="match-meta">${formatTime(match.kickoff)}</div>
         </td>
-        <td>
+        <td class="prediction-cell">
           <div class="score-inputs">
             <input type="number" min="0" max="30" data-pred-home="${match.id}" value="${valueOrEmpty(matchPrediction.homeScore)}" ${locked ? "disabled" : ""}>
             <span>-</span>
@@ -201,6 +204,94 @@ function renderOverviewChampionPicks() {
       `,
     )
     .join("");
+}
+
+function renderResults() {
+  const configuredMatches = getConfiguredMatches();
+  const groupMatches = configuredMatches.filter((match) => match.stage === "group");
+  const knockoutMatches = configuredMatches.filter((match) => match.stage === "knockout");
+  const phases = [...new Set(groupMatches.map((match) => match.phase))].sort((a, b) => a.localeCompare(b, "fr", { numeric: true }));
+
+  resultsGroups.innerHTML = phases
+    .map((phase) => renderResultsGroup(phase, groupMatches.filter((match) => match.phase === phase)))
+    .join("");
+
+  resultsKnockoutBody.innerHTML = knockoutMatches
+    .map((match) => {
+      const result = state.results[match.id] || {};
+      const decision = getKnockoutDecision(match, result);
+      const qualified = hasScore(result) && decision.qualifiedTeam ? `${teamName(decision.qualifiedTeam)}${decision.qualificationMethod !== "regular" ? ` <span class="match-meta inline-meta">(${methodLabel(decision.qualificationMethod)})</span>` : ""}` : "-";
+      return `
+        <tr>
+          <td>${phaseBadge(match.phase)}</td>
+          <td>${formatDate(match.kickoff)}<div class="match-meta">${formatTime(match.kickoff)}</div></td>
+          <td><div class="match-title">${teamName(match.home)} - ${teamName(match.away)}</div></td>
+          <td>${resultScore(result)}</td>
+          <td>${qualified}</td>
+        </tr>
+      `;
+    })
+    .join("");
+}
+
+function renderResultsGroup(phase, phaseMatches) {
+  const standings = computeGroupStandings(phaseMatches);
+  const matchesRows = phaseMatches
+    .map((match) => `
+      <tr>
+        <td>${formatDate(match.kickoff)}<div class="match-meta">${formatTime(match.kickoff)}</div></td>
+        <td><div class="match-title">${teamName(match.home)} - ${teamName(match.away)}</div></td>
+        <td>${resultScore(state.results[match.id] || {})}</td>
+      </tr>
+    `)
+    .join("");
+  const standingsRows = standings
+    .map((team, index) => `
+      <tr>
+        <td class="rank">${index + 1}</td>
+        <td class="leader-name">${teamName(team.name)}</td>
+        <td>${team.played}</td>
+        <td>${team.points}</td>
+        <td>${team.goalDifference}</td>
+        <td>${team.goalsFor}</td>
+      </tr>
+    `)
+    .join("");
+
+  return `
+    <article class="results-group">
+      <h3 class="phase-title">${escapeHtml(phase)}</h3>
+      <div class="results-group-grid">
+        <div class="table-wrap results-standing-wrap">
+          <table class="matches-table standings-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Équipe</th>
+                <th>J</th>
+                <th>Pts</th>
+                <th>Diff.</th>
+                <th>BP</th>
+              </tr>
+            </thead>
+            <tbody>${standingsRows}</tbody>
+          </table>
+        </div>
+        <div class="table-wrap results-match-wrap">
+          <table class="matches-table results-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Match</th>
+                <th>Résultat</th>
+              </tr>
+            </thead>
+            <tbody>${matchesRows}</tbody>
+          </table>
+        </div>
+      </div>
+    </article>
+  `;
 }
 
 function renderLeaderboard() {
@@ -343,6 +434,112 @@ function countExactScores(participant) {
   return getConfiguredMatches().reduce((total, match) => {
     return total + (isExactScore(prediction.matches?.[match.id] || {}, state.results[match.id] || {}) ? 1 : 0);
   }, 0);
+}
+
+function computeGroupStandings(phaseMatches) {
+  const teamsMap = new Map();
+  phaseMatches.forEach((match) => {
+    ensureStandingTeam(teamsMap, match.home);
+    ensureStandingTeam(teamsMap, match.away);
+
+    const result = state.results[match.id] || {};
+    if (!hasScore(result)) return;
+
+    applyGroupResult(teamsMap.get(match.home), Number(result.homeScore), Number(result.awayScore));
+    applyGroupResult(teamsMap.get(match.away), Number(result.awayScore), Number(result.homeScore));
+  });
+
+  return rankGroupStandings([...teamsMap.values()], phaseMatches);
+}
+
+function ensureStandingTeam(teamsMap, team) {
+  if (teamsMap.has(team)) return;
+  teamsMap.set(team, {
+    name: team,
+    played: 0,
+    wins: 0,
+    draws: 0,
+    losses: 0,
+    points: 0,
+    goalsFor: 0,
+    goalsAgainst: 0,
+    goalDifference: 0,
+    fairPlay: 0,
+  });
+}
+
+function applyGroupResult(team, goalsFor, goalsAgainst) {
+  team.played += 1;
+  team.goalsFor += goalsFor;
+  team.goalsAgainst += goalsAgainst;
+  team.goalDifference = team.goalsFor - team.goalsAgainst;
+
+  if (goalsFor > goalsAgainst) {
+    team.wins += 1;
+    team.points += 3;
+  } else if (goalsFor === goalsAgainst) {
+    team.draws += 1;
+    team.points += 1;
+  } else {
+    team.losses += 1;
+  }
+}
+
+function rankGroupStandings(standings, phaseMatches) {
+  const byPoints = new Map();
+  standings.forEach((team) => {
+    if (!byPoints.has(team.points)) byPoints.set(team.points, []);
+    byPoints.get(team.points).push(team);
+  });
+
+  return [...byPoints.entries()]
+    .sort((a, b) => b[0] - a[0])
+    .flatMap(([, tiedTeams]) => sortTiedTeams(tiedTeams, phaseMatches));
+}
+
+function sortTiedTeams(tiedTeams, phaseMatches) {
+  if (tiedTeams.length === 1) return tiedTeams;
+
+  const h2hStats = computeHeadToHeadStats(tiedTeams, phaseMatches);
+  return tiedTeams.sort((a, b) => {
+    const h2hA = h2hStats.get(a.name);
+    const h2hB = h2hStats.get(b.name);
+    return (
+      h2hB.points - h2hA.points ||
+      h2hB.goalDifference - h2hA.goalDifference ||
+      h2hB.goalsFor - h2hA.goalsFor ||
+      b.goalDifference - a.goalDifference ||
+      b.goalsFor - a.goalsFor ||
+      b.fairPlay - a.fairPlay ||
+      a.name.localeCompare(b.name, "fr", { sensitivity: "base" })
+    );
+  });
+}
+
+function computeHeadToHeadStats(tiedTeams, phaseMatches) {
+  const tiedNames = new Set(tiedTeams.map((team) => team.name));
+  const stats = new Map(tiedTeams.map((team) => [team.name, { points: 0, goalsFor: 0, goalsAgainst: 0, goalDifference: 0 }]));
+
+  phaseMatches.forEach((match) => {
+    if (!tiedNames.has(match.home) || !tiedNames.has(match.away)) return;
+    const result = state.results[match.id] || {};
+    if (!hasScore(result)) return;
+
+    applyHeadToHeadResult(stats.get(match.home), Number(result.homeScore), Number(result.awayScore));
+    applyHeadToHeadResult(stats.get(match.away), Number(result.awayScore), Number(result.homeScore));
+  });
+
+  stats.forEach((team) => {
+    team.goalDifference = team.goalsFor - team.goalsAgainst;
+  });
+  return stats;
+}
+
+function applyHeadToHeadResult(team, goalsFor, goalsAgainst) {
+  team.goalsFor += goalsFor;
+  team.goalsAgainst += goalsAgainst;
+  if (goalsFor > goalsAgainst) team.points += 3;
+  if (goalsFor === goalsAgainst) team.points += 1;
 }
 
 function scoreChampion(team) {
@@ -517,6 +714,10 @@ function formatTime(dateString) {
 
 function valueOrEmpty(value) {
   return value === undefined || value === null ? "" : value;
+}
+
+function resultScore(result) {
+  return hasScore(result) ? `${result.homeScore}-${result.awayScore}` : "-";
 }
 
 function pointsClass(points) {

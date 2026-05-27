@@ -392,6 +392,16 @@ tbody tr:nth-child(even) {
   gap: 6px;
 }
 
+.prediction-column,
+.prediction-cell {
+  white-space: nowrap;
+}
+
+.prediction-cell .score-inputs,
+.prediction-cell .knockout-decision {
+  flex-wrap: nowrap;
+}
+
 .knockout-decision {
   display: inline-flex;
   align-items: center;
@@ -422,6 +432,41 @@ tbody tr:nth-child(even) {
 
 .leaderboard {
   display: block;
+}
+
+.results-groups {
+  display: grid;
+  gap: 18px;
+}
+
+.results-group-grid {
+  display: grid;
+  grid-template-columns: minmax(360px, 0.9fr) minmax(460px, 1.1fr);
+  gap: 14px;
+}
+
+.standings-table {
+  min-width: 560px;
+}
+
+.results-table {
+  min-width: 700px;
+}
+
+.results-standing-wrap,
+.results-match-wrap {
+  margin-bottom: 0;
+}
+
+.results-note {
+  margin: 12px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.inline-meta {
+  display: inline;
 }
 
 .overview-table {
@@ -752,6 +797,18 @@ dd {
 
   .overview-table {
     min-width: 860px;
+  }
+
+  .results-group-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .standings-table {
+    min-width: 520px;
+  }
+
+  .results-table {
+    min-width: 650px;
   }
 
   .rules-grid {
