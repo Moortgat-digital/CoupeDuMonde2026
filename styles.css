@@ -24,6 +24,7 @@ body {
   background: linear-gradient(180deg, #edf3f5 0%, #f8fafb 46%, #eef2f1 100%);
   color: var(--ink);
   font-family: Arial, Helvetica, sans-serif;
+  font-weight: 400;
 }
 
 button,
@@ -44,7 +45,7 @@ select {
   margin: 0 0 6px;
   color: var(--brand);
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
@@ -52,6 +53,7 @@ select {
 h1,
 h2 {
   margin: 0;
+  font-weight: 650;
   line-height: 1.12;
 }
 
@@ -65,6 +67,7 @@ h2 {
 
 h3 {
   margin: 0;
+  font-weight: 650;
 }
 
 .profile-panel,
@@ -82,7 +85,7 @@ h3 {
 label {
   color: var(--muted);
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 600;
 }
 
 select,
@@ -132,7 +135,7 @@ input[type="number"] {
   background: transparent;
   color: var(--muted);
   cursor: pointer;
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .tab.active {
@@ -170,7 +173,7 @@ input[type="number"] {
   background: var(--brand);
   color: #ffffff;
   cursor: pointer;
-  font-weight: 800;
+  font-weight: 650;
 }
 
 .primary-action:hover,
@@ -187,7 +190,7 @@ input[type="number"] {
   background: #fff1f2;
   color: #b91c1c;
   cursor: pointer;
-  font-weight: 800;
+  font-weight: 650;
 }
 
 .ghost-danger:hover {
@@ -220,7 +223,7 @@ input[type="number"] {
   border-radius: 6px;
   background: var(--surface);
   color: var(--brand);
-  font-weight: 800;
+  font-weight: 650;
   text-decoration: none;
 }
 
@@ -254,7 +257,7 @@ input[type="number"] {
   background: #e6f4ef;
   color: var(--brand);
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 650;
 }
 
 .table-wrap {
@@ -278,7 +281,7 @@ input[type="number"] {
 .major-section-title.solo-title {
   color: var(--ink);
   font-size: clamp(22px, 3vw, 30px);
-  font-weight: 900;
+  font-weight: 700;
   line-height: 1.15;
 }
 
@@ -292,7 +295,7 @@ input[type="number"] {
   background: #fffbeb;
   color: #9a3412;
   font-size: 13px;
-  font-weight: 800;
+  font-weight: 650;
 }
 
 .phase-title {
@@ -310,7 +313,7 @@ input[type="number"] {
   border-radius: 999px;
   color: #ffffff;
   font-size: 13px;
-  font-weight: 900;
+  font-weight: 650;
   white-space: nowrap;
 }
 
@@ -361,7 +364,7 @@ tbody tr:nth-child(even) {
 }
 
 .match-title {
-  font-weight: 800;
+  font-weight: 650;
 }
 
 .team-name {
@@ -421,13 +424,13 @@ tbody tr:nth-child(even) {
   min-height: 30px;
   border-radius: 6px;
   background: #eef2f5;
-  font-weight: 900;
+  font-weight: 650;
 }
 
 .locked {
   color: var(--muted);
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .leaderboard {
@@ -462,7 +465,7 @@ tbody tr:nth-child(even) {
   margin: 12px 0 0;
   color: var(--muted);
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .inline-meta {
@@ -494,7 +497,7 @@ tbody tr:nth-child(even) {
 
 .prediction-chip span {
   color: var(--muted);
-  font-weight: 800;
+  font-weight: 600;
 }
 
 .champion-picks {
@@ -519,7 +522,7 @@ tbody tr:nth-child(even) {
 }
 
 .champion-pick span {
-  font-weight: 900;
+  font-weight: 650;
 }
 
 .point-badge {
@@ -532,7 +535,7 @@ tbody tr:nth-child(even) {
   background: #eef2f5;
   color: var(--ink);
   font-style: normal;
-  font-weight: 900;
+  font-weight: 650;
 }
 
 .points.score-miss,
@@ -644,18 +647,18 @@ tbody tr:nth-child(even) {
 
 .rank {
   font-size: 20px;
-  font-weight: 900;
+  font-weight: 700;
   width: 80px;
 }
 
 .leader-name {
-  font-weight: 900;
+  font-weight: 650;
 }
 
 .leader-points {
   border-radius: 6px;
   font-size: 22px;
-  font-weight: 900;
+  font-weight: 700;
   color: var(--brand);
   text-align: center;
 }
@@ -725,7 +728,7 @@ dt {
 
 dd {
   margin: 0;
-  font-weight: 900;
+  font-weight: 650;
 }
 
 .rule-score {
