@@ -23,6 +23,7 @@ window.APP_DATA = {
     "Nazim",
     "Sandrine",
     "Sébastien",
+    "Stéphane B",
   ],
   teams: [
     "Mexique",
