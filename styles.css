@@ -463,6 +463,15 @@ tbody tr:nth-child(even) {
   display: block;
 }
 
+.empty-state {
+  margin: 0;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fbfcfd;
+  color: var(--muted);
+}
+
 .results-groups {
   display: grid;
   gap: 18px;

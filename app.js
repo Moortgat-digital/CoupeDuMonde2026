@@ -304,12 +304,18 @@ function renderResultsGroup(phase, phaseMatches) {
 
 function renderLeaderboard() {
   const rows = participants
+    .filter(hasParticipantPrediction)
     .map((participant) => ({
       participant,
       points: scoreParticipant(participant),
       exactScores: countExactScores(participant),
     }))
     .sort((a, b) => b.points - a.points || b.exactScores - a.exactScores || a.participant.localeCompare(b.participant, "fr"));
+
+  if (rows.length === 0) {
+    leaderboard.innerHTML = `<p class="empty-state">Aucun participant n'a encore enregistré de pronostic.</p>`;
+    return;
+  }
 
   const pointValues = rows.map((row) => row.points);
   const minPoints = Math.min(...pointValues);
@@ -347,6 +353,13 @@ function renderLeaderboard() {
       </table>
     </div>
   `;
+}
+
+function hasParticipantPrediction(participant) {
+  const prediction = state.predictions[participant];
+  if (!prediction) return false;
+  if (prediction.champion) return true;
+  return Object.values(prediction.matches || {}).some((matchPrediction) => hasScore(matchPrediction));
 }
 
 function renderParticipantPick(participant, match) {
