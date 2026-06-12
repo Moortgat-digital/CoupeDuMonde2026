@@ -1,4 +1,4 @@
-const { tournamentStart, participants, teams, matches, championProgress, flagCodes } = window.APP_DATA;
+const { tournamentStart, participants, externalParticipants = [], teams, matches, championProgress, flagCodes } = window.APP_DATA;
 const profileStorageKey = "cdm2026-selected-profile";
 
 const defaultState = {
@@ -307,6 +307,7 @@ function renderLeaderboard() {
     .filter(hasParticipantPrediction)
     .map((participant) => ({
       participant,
+      isExternal: externalParticipants.includes(participant),
       points: scoreParticipant(participant),
       exactScores: countExactScores(participant),
     }))
@@ -321,16 +322,24 @@ function renderLeaderboard() {
   const minPoints = Math.min(...pointValues);
   const maxPoints = Math.max(...pointValues);
   let currentRank = 0;
+  let previousRankedParticipant = null;
   const body = rows
-    .map((row, index) => {
-      const previous = rows[index - 1];
-      const isTiedWithPrevious = previous && previous.points === row.points && previous.exactScores === row.exactScores;
-      if (!isTiedWithPrevious) currentRank += 1;
+    .map((row) => {
+      const isTiedWithPrevious =
+        !row.isExternal &&
+        previousRankedParticipant &&
+        previousRankedParticipant.points === row.points &&
+        previousRankedParticipant.exactScores === row.exactScores;
+
+      if (!row.isExternal && !isTiedWithPrevious) currentRank += 1;
+      if (!row.isExternal) previousRankedParticipant = row;
+
+      const displayedRank = row.isExternal ? "EXT." : isTiedWithPrevious ? "-" : currentRank;
 
       return `
-        <tr>
-          <td class="rank">${isTiedWithPrevious ? "-" : currentRank}</td>
-          <td class="leader-name">${escapeHtml(row.participant)}</td>
+        <tr class="${row.isExternal ? "external-participant" : ""}">
+          <td class="rank">${displayedRank}</td>
+          <td class="leader-name">${escapeHtml(row.participant)}${row.isExternal ? ` <span class="external-label">Externe</span>` : ""}</td>
           <td class="leader-points ${leaderboardPointsClass(row.points, minPoints, maxPoints)}">${row.points} pts</td>
           <td>${row.exactScores}</td>
         </tr>

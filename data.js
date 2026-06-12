@@ -21,10 +21,12 @@ window.APP_DATA = {
     "Laurent F",
     "Ilan",
     "Nazim",
+    "Raphaël",
     "Sandrine",
     "Sébastien",
     "Stéphane B",
   ],
+  externalParticipants: ["Raphaël"],
   teams: [
     "Mexique",
     "Afrique du Sud",
