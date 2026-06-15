@@ -170,9 +170,14 @@ function renderOverview() {
       const result = state.results[match.id] || {};
       const resultText = hasScore(result) ? `${result.homeScore}-${result.awayScore}` : "-";
       const picks = participants.map((participant) => renderParticipantPick(participant, match)).join("");
-      const pickCount = participants.filter((participant) =>
-        hasScore(state.predictions[participant]?.matches?.[match.id] || {}),
-      ).length;
+      const matchPredictions = participants
+        .map((participant) => state.predictions[participant]?.matches?.[match.id])
+        .filter((prediction) => hasScore(prediction || {}));
+      const pickCount = matchPredictions.length;
+      const averagePoints =
+        hasScore(result) && pickCount > 0
+          ? matchPredictions.reduce((total, prediction) => total + scoreMatch(match, prediction, result), 0) / pickCount
+          : null;
       return {
         stage: match.stage,
         html: `
@@ -181,6 +186,7 @@ function renderOverview() {
             <span class="om-date">${formatDate(match.kickoff)}<span class="om-time">${formatTime(match.kickoff)}</span></span>
             <span class="om-title">${teamName(match.home)} - ${teamName(match.away)}</span>
             <span class="om-result">${escapeHtml(resultText)}</span>
+            ${averagePoints !== null ? `<span class="om-average" title="Moyenne des points gagnés par les pronostiqueurs">moy. ${formatAverage(averagePoints)} pts</span>` : ""}
             <span class="om-count">${pickCount} prono${pickCount > 1 ? "s" : ""}</span>
           </summary>
           <div class="prediction-grid">${picks || `<p class="om-empty">Aucun pronostic enregistré pour ce match.</p>`}</div>
@@ -751,6 +757,10 @@ function formatDate(dateString) {
 
 function formatTime(dateString) {
   return new Intl.DateTimeFormat("fr-FR", { hour: "2-digit", minute: "2-digit" }).format(new Date(dateString));
+}
+
+function formatAverage(value) {
+  return new Intl.NumberFormat("fr-FR", { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(value);
 }
 
 function valueOrEmpty(value) {
