@@ -557,6 +557,14 @@ tbody tr:nth-child(even) {
   font-weight: 700;
 }
 
+.om-average {
+  flex: 0 0 auto;
+  color: var(--brand);
+  font-size: 12px;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
 .om-count {
   flex: 0 0 auto;
   color: var(--muted);
@@ -1038,17 +1046,21 @@ dd {
     order: 2;
   }
 
-  .om-count {
+  .om-average {
     order: 3;
   }
 
-  .overview-summary::after {
+  .om-count {
     order: 4;
+  }
+
+  .overview-summary::after {
+    order: 5;
   }
 
   .om-title {
     flex: 1 1 100%;
-    order: 5;
+    order: 6;
     font-size: 14px;
   }
 
