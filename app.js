@@ -587,7 +587,10 @@ function scoreMatch(match, prediction, result) {
     points = 3;
   } else if (sameOutcome(prediction, result)) {
     points = 1;
-    if (sameGoalDifference(prediction, result)) points += 1;
+    // Le bonus d'écart de buts ne s'applique qu'aux matchs décisifs :
+    // sur un nul, l'écart est toujours 0 et le point serait acquis d'office.
+    const isDraw = Number(result.homeScore) === Number(result.awayScore);
+    if (!isDraw && sameGoalDifference(prediction, result)) points += 1;
   }
 
   if (match.stage === "knockout" && resultDecision.qualifiedTeam && predictionDecision.qualifiedTeam === resultDecision.qualifiedTeam) {
