@@ -827,6 +827,58 @@ dd {
     min-width: 760px;
   }
 
+  .leaderboard-table {
+    min-width: 0;
+    table-layout: fixed;
+  }
+
+  .leaderboard-table th,
+  .leaderboard-table td {
+    padding: 8px 6px;
+  }
+
+  .leaderboard-table th {
+    font-size: 11px;
+    white-space: normal;
+    line-height: 1.15;
+  }
+
+  .leaderboard-table th:nth-child(1),
+  .leaderboard-table td:nth-child(1) {
+    width: 40px;
+  }
+
+  .leaderboard-table th:nth-child(3),
+  .leaderboard-table td:nth-child(3) {
+    width: 58px;
+  }
+
+  .leaderboard-table th:nth-child(4),
+  .leaderboard-table td:nth-child(4) {
+    width: 48px;
+    text-align: center;
+  }
+
+  .leaderboard-table .rank {
+    font-size: 15px;
+  }
+
+  .leaderboard-table .leader-name {
+    font-size: 13px;
+    line-height: 1.2;
+    word-break: break-word;
+  }
+
+  .leaderboard-table .leader-points {
+    font-size: 15px;
+    padding-left: 4px;
+    padding-right: 4px;
+  }
+
+  .leaderboard-table .external-label {
+    display: none;
+  }
+
   .overview-table {
     min-width: 860px;
   }
