@@ -169,17 +169,22 @@ function renderOverview() {
     .map((match) => {
       const result = state.results[match.id] || {};
       const resultText = hasScore(result) ? `${result.homeScore}-${result.awayScore}` : "-";
+      const picks = participants.map((participant) => renderParticipantPick(participant, match)).join("");
+      const pickCount = participants.filter((participant) =>
+        hasScore(state.predictions[participant]?.matches?.[match.id] || {}),
+      ).length;
       return {
         stage: match.stage,
         html: `
-        <tr>
-          <td>${formatDate(match.kickoff)}<div class="match-meta">${formatTime(match.kickoff)}</div></td>
-          <td>
-            <div class="match-title">${teamName(match.home)} - ${teamName(match.away)}</div>
-          </td>
-          <td>${escapeHtml(resultText)}</td>
-          <td><div class="prediction-grid">${participants.map((participant) => renderParticipantPick(participant, match)).join("")}</div></td>
-        </tr>
+        <details class="overview-match">
+          <summary class="overview-summary">
+            <span class="om-date">${formatDate(match.kickoff)}<span class="om-time">${formatTime(match.kickoff)}</span></span>
+            <span class="om-title">${teamName(match.home)} - ${teamName(match.away)}</span>
+            <span class="om-result">${escapeHtml(resultText)}</span>
+            <span class="om-count">${pickCount} prono${pickCount > 1 ? "s" : ""}</span>
+          </summary>
+          <div class="prediction-grid">${picks || `<p class="om-empty">Aucun pronostic enregistré pour ce match.</p>`}</div>
+        </details>
       `,
       };
     });

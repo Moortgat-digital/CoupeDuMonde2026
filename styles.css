@@ -492,14 +492,89 @@ tbody tr:nth-child(even) {
   display: inline;
 }
 
-.overview-table {
-  min-width: 1040px;
+.overview-accordion {
+  margin-bottom: 24px;
+}
+
+.overview-match {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  margin-bottom: 8px;
+  background: #ffffff;
+  overflow: hidden;
+}
+
+.overview-summary {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 11px 14px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.overview-summary::-webkit-details-marker {
+  display: none;
+}
+
+.overview-summary::after {
+  content: "\25B8";
+  flex: 0 0 auto;
+  margin-left: auto;
+  color: var(--muted);
+  transition: transform 0.15s ease;
+}
+
+.overview-match[open] .overview-summary::after {
+  transform: rotate(90deg);
+}
+
+.overview-match[open] .overview-summary {
+  border-bottom: 1px solid var(--line);
+}
+
+.om-date {
+  flex: 0 0 auto;
+  width: 78px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.om-time {
+  display: block;
+}
+
+.om-title {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-weight: 650;
+}
+
+.om-result {
+  flex: 0 0 auto;
+  min-width: 46px;
+  text-align: center;
+  font-weight: 700;
+}
+
+.om-count {
+  flex: 0 0 auto;
+  color: var(--muted);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.om-empty {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
 }
 
 .prediction-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(150px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
   gap: 6px;
+  padding: 12px 14px 14px;
 }
 
 .prediction-chip {
@@ -942,8 +1017,39 @@ dd {
     display: none;
   }
 
-  .overview-table {
-    min-width: 860px;
+  .overview-summary {
+    flex-wrap: wrap;
+    gap: 6px 10px;
+    padding: 10px 12px;
+  }
+
+  .om-date {
+    order: 1;
+    width: auto;
+    font-size: 11px;
+  }
+
+  .om-time {
+    display: inline;
+    margin-left: 5px;
+  }
+
+  .om-result {
+    order: 2;
+  }
+
+  .om-count {
+    order: 3;
+  }
+
+  .overview-summary::after {
+    order: 4;
+  }
+
+  .om-title {
+    flex: 1 1 100%;
+    order: 5;
+    font-size: 14px;
   }
 
   .results-group-grid {
@@ -971,7 +1077,8 @@ dd {
   }
 
   .prediction-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    padding: 10px;
   }
 
   .sticky-save {
