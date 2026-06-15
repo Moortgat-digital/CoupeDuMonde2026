@@ -2,6 +2,25 @@ import { list, put } from "@vercel/blob";
 
 const blobPath = "state/pronostics-state.json";
 
+// Base publique du store Blob, mise en cache pour éviter les appels `list()`
+// (facturés comme "Advanced Operations"). On la déduit du token Blob, puis on
+// la confirme avec l'URL renvoyée par `put()`.
+let cachedBaseUrl = null;
+
+function getBlobBaseUrl() {
+  if (cachedBaseUrl) return cachedBaseUrl;
+
+  // Token au format vercel_blob_rw_<storeId>_<secret> ; le storeId est aussi le
+  // sous-domaine de l'URL publique : https://<storeId>.public.blob.vercel-storage.com
+  const token = process.env.BLOB_READ_WRITE_TOKEN || "";
+  const parts = token.split("_");
+  if (parts.length >= 5 && parts[3]) {
+    cachedBaseUrl = `https://${parts[3].toLowerCase()}.public.blob.vercel-storage.com`;
+  }
+
+  return cachedBaseUrl;
+}
+
 const emptyState = {
   predictions: {},
   results: {},
@@ -75,10 +94,33 @@ async function saveAdmin(body, request, response) {
 }
 
 async function readState() {
+  // Lecture directe via l'URL publique du CDN : ce simple GET HTTP n'est PAS
+  // facturé comme une opération Blob, contrairement à `list()`.
+  const baseUrl = getBlobBaseUrl();
+  if (baseUrl) {
+    const directResponse = await fetch(`${baseUrl}/${blobPath}?v=${Date.now()}`, {
+      cache: "no-store",
+    });
+
+    if (directResponse.ok) {
+      return {
+        ...structuredClone(emptyState),
+        ...(await directResponse.json()),
+      };
+    }
+
+    // 404 = état pas encore créé : on renvoie l'état vide sans appeler `list()`.
+    if (directResponse.status === 404) return structuredClone(emptyState);
+  }
+
+  // Filet de sécurité (token absent ou réponse inattendue) : on retombe sur la
+  // méthode `list()` historique et on mémorise la base pour les prochains appels.
   const { blobs } = await list({ prefix: blobPath, limit: 1 });
   const blob = blobs.find((item) => item.pathname === blobPath);
 
   if (!blob) return structuredClone(emptyState);
+
+  cacheBaseUrlFrom(blob.url);
 
   const blobResponse = await fetch(`${blob.url}?v=${Date.now()}`, { cache: "no-store" });
   if (!blobResponse.ok) return structuredClone(emptyState);
@@ -90,11 +132,23 @@ async function readState() {
 }
 
 async function writeState(state) {
-  await put(blobPath, JSON.stringify(state, null, 2), {
+  const result = await put(blobPath, JSON.stringify(state, null, 2), {
     access: "public",
     allowOverwrite: true,
+    addRandomSuffix: false,
     contentType: "application/json",
   });
+
+  // On garde l'URL exacte renvoyée par Vercel pour fiabiliser les lectures.
+  cacheBaseUrlFrom(result.url);
+}
+
+function cacheBaseUrlFrom(blobUrl) {
+  try {
+    cachedBaseUrl = new URL(blobUrl).origin;
+  } catch {
+    // URL invalide : on conserve la base déjà connue.
+  }
 }
 
 async function readBody(request) {
