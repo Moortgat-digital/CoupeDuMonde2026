@@ -140,7 +140,11 @@ function renderPredictionRow(match) {
         <td>${formatDate(match.kickoff)}</td>
         <td>
           <div class="match-title">${teamName(match.home)} - ${teamName(match.away)}</div>
-          <div class="match-meta">${formatTime(match.kickoff)}</div>
+          <div class="match-meta">
+            <span class="meta-date">${formatDate(match.kickoff)}</span>
+            <span class="meta-time">${formatTime(match.kickoff)}</span>
+            <span class="meta-phase">${phaseBadge(match.phase)}</span>
+          </div>
         </td>
         <td class="prediction-cell">
           <div class="score-inputs">

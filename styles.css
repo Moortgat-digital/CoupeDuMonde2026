@@ -383,9 +383,20 @@ tbody tr:nth-child(even) {
 }
 
 .match-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
   margin-top: 2px;
   color: var(--muted);
   font-size: 12px;
+}
+
+/* Sur grand écran, la date et le groupe vivent dans leurs colonnes dédiées :
+   on ne garde que l'heure dans la ligne sous le match. */
+.predictions-table .meta-date,
+.predictions-table .meta-phase {
+  display: none;
 }
 
 .score-inputs {
@@ -825,6 +836,58 @@ dd {
 
   .matches-table {
     min-width: 760px;
+  }
+
+  /* Table de pronostics : on replie Phase + Date sous le match pour tout
+     faire tenir sur la largeur de l'écran sans défilement horizontal. */
+  .predictions-table {
+    min-width: 0;
+  }
+
+  .predictions-table th:nth-child(1),
+  .predictions-table th:nth-child(2),
+  .predictions-table td:nth-child(1),
+  .predictions-table td:nth-child(2) {
+    display: none;
+  }
+
+  .predictions-table .meta-date,
+  .predictions-table .meta-phase {
+    display: inline-flex;
+  }
+
+  .predictions-table .match-meta {
+    gap: 6px;
+  }
+
+  .predictions-table .match-meta .phase-badge {
+    min-height: 19px;
+    padding: 0 8px;
+    font-size: 11px;
+  }
+
+  .predictions-table .match-title {
+    font-size: 13px;
+    line-height: 1.2;
+  }
+
+  .predictions-table th,
+  .predictions-table td {
+    padding: 8px 6px;
+  }
+
+  .predictions-table .prediction-cell {
+    white-space: normal;
+  }
+
+  .predictions-table .prediction-cell .score-inputs,
+  .predictions-table .prediction-cell .knockout-decision {
+    flex-wrap: wrap;
+  }
+
+  .predictions-table input[type="number"] {
+    width: 44px;
+    padding: 0 4px;
   }
 
   .leaderboard-table {
