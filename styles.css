@@ -197,47 +197,21 @@ input[type="number"] {
   background: #fee2e2;
 }
 
-.autosave-status {
+.sticky-save {
   position: fixed;
   right: 24px;
   bottom: 24px;
   z-index: 15;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 44px;
-  padding: 0 16px;
+  min-height: 54px;
+  padding: 0 24px;
   border-radius: 8px;
-  border: 1px solid var(--line);
-  background: #ffffff;
-  color: var(--muted);
-  box-shadow: 0 16px 40px rgba(21, 32, 43, 0.16);
-  font-size: 14px;
-  font-weight: 650;
+  background: #dc2626;
+  box-shadow: 0 16px 40px rgba(220, 38, 38, 0.35);
+  font-size: 18px;
 }
 
-.autosave-status.pending {
-  border-color: #fed7aa;
-  background: #fffbeb;
-  color: #9a3412;
-}
-
-.autosave-status.saving {
-  border-color: #bfdbfe;
-  background: #eff6ff;
-  color: #1d4ed8;
-}
-
-.autosave-status.saved {
-  border-color: #bbf7d0;
-  background: #f0fdf4;
-  color: #166534;
-}
-
-.autosave-status.error {
-  border-color: #fecaca;
-  background: #fff1f2;
-  color: #991b1b;
+.sticky-save:hover {
+  background: #991b1b;
 }
 
 .nav-link {
@@ -853,6 +827,58 @@ dd {
     min-width: 760px;
   }
 
+  .leaderboard-table {
+    min-width: 0;
+    table-layout: fixed;
+  }
+
+  .leaderboard-table th,
+  .leaderboard-table td {
+    padding: 8px 6px;
+  }
+
+  .leaderboard-table th {
+    font-size: 11px;
+    white-space: normal;
+    line-height: 1.15;
+  }
+
+  .leaderboard-table th:nth-child(1),
+  .leaderboard-table td:nth-child(1) {
+    width: 40px;
+  }
+
+  .leaderboard-table th:nth-child(3),
+  .leaderboard-table td:nth-child(3) {
+    width: 58px;
+  }
+
+  .leaderboard-table th:nth-child(4),
+  .leaderboard-table td:nth-child(4) {
+    width: 48px;
+    text-align: center;
+  }
+
+  .leaderboard-table .rank {
+    font-size: 15px;
+  }
+
+  .leaderboard-table .leader-name {
+    font-size: 13px;
+    line-height: 1.2;
+    word-break: break-word;
+  }
+
+  .leaderboard-table .leader-points {
+    font-size: 15px;
+    padding-left: 4px;
+    padding-right: 4px;
+  }
+
+  .leaderboard-table .external-label {
+    display: none;
+  }
+
   .overview-table {
     min-width: 860px;
   }
@@ -885,7 +911,7 @@ dd {
     grid-template-columns: 1fr;
   }
 
-  .autosave-status {
+  .sticky-save {
     right: 16px;
     bottom: 16px;
     left: 16px;

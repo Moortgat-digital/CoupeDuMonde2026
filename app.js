@@ -27,12 +27,7 @@ const overviewKnockoutBody = document.querySelector("#overviewKnockoutBody");
 const resultsGroups = document.querySelector("#resultsGroups");
 const resultsKnockoutBody = document.querySelector("#resultsKnockoutBody");
 const leaderboard = document.querySelector("#leaderboard");
-const autosaveStatus = document.querySelector("#autosaveStatus");
 const toast = document.querySelector("#toast");
-let autoSaveTimer = null;
-let autoSaveInFlight = false;
-let autoSaveQueued = false;
-let autoSavePromise = null;
 
 init();
 
@@ -56,19 +51,16 @@ async function loadRemoteState() {
 }
 
 function bindEvents() {
-  profileSelect.addEventListener("change", async () => {
-    await flushAutoSave();
-    setSelectedParticipant(profileSelect.value);
-  });
+  profileSelect.addEventListener("change", () => setSelectedParticipant(profileSelect.value));
   document.addEventListener("input", handleScoreInput);
-  document.addEventListener("change", handlePredictionChange);
 
-  document.querySelector("#confirmProfile").addEventListener("click", async () => {
-    await flushAutoSave();
+  document.querySelector("#confirmProfile").addEventListener("click", () => {
     setSelectedParticipant(initialProfileSelect.value);
     profileConfirmed = true;
     profileGate.classList.remove("visible");
   });
+
+  document.querySelector("#savePredictions").addEventListener("click", savePredictionsFromForm);
 
   document.querySelectorAll(".tab").forEach((tab) => {
     tab.addEventListener("click", () => {
@@ -403,7 +395,6 @@ async function savePredictionsFromForm() {
   const prediction = buildPredictionFromForm(participant);
 
   try {
-    setAutoSaveStatus("saving", "Sauvegarde...");
     const response = await fetch("/api/state", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -416,9 +407,10 @@ async function savePredictionsFromForm() {
 
     if (!response.ok) throw new Error("Erreur d'enregistrement");
     state = { ...structuredClone(defaultState), ...(await response.json()) };
-    setAutoSaveStatus("saved", "Sauvegardé");
+    renderAll();
+    showToast("Pronostics enregistrés");
   } catch {
-    setAutoSaveStatus("error", "Sauvegarde impossible");
+    showToast("Enregistrement impossible");
   }
 }
 
@@ -701,69 +693,6 @@ function handleScoreInput(event) {
   if (!matchId) return;
 
   toggleDecisionControls(matchId, "pred");
-  scheduleAutoSave();
-}
-
-function handlePredictionChange(event) {
-  if (
-    event.target === championPick ||
-    event.target.dataset.predQualified !== undefined ||
-    event.target.dataset.predMethod !== undefined
-  ) {
-    scheduleAutoSave();
-  }
-}
-
-function scheduleAutoSave() {
-  window.clearTimeout(autoSaveTimer);
-  setAutoSaveStatus("pending", "À sauvegarder");
-  autoSaveTimer = window.setTimeout(runAutoSave, 700);
-}
-
-async function flushAutoSave() {
-  if (!autoSaveTimer && !autoSaveInFlight) return;
-  window.clearTimeout(autoSaveTimer);
-  autoSaveTimer = null;
-
-  if (autoSaveInFlight) {
-    autoSaveQueued = true;
-    await autoSavePromise;
-    if (autoSaveTimer) {
-      window.clearTimeout(autoSaveTimer);
-      autoSaveTimer = null;
-      await runAutoSave();
-    }
-    return;
-  }
-
-  await runAutoSave();
-}
-
-async function runAutoSave() {
-  window.clearTimeout(autoSaveTimer);
-  autoSaveTimer = null;
-
-  if (autoSaveInFlight) {
-    autoSaveQueued = true;
-    return;
-  }
-
-  autoSaveInFlight = true;
-  autoSaveQueued = false;
-  autoSavePromise = savePredictionsFromForm();
-  await autoSavePromise;
-  autoSavePromise = null;
-  autoSaveInFlight = false;
-
-  if (autoSaveQueued) {
-    autoSaveQueued = false;
-    scheduleAutoSave();
-  }
-}
-
-function setAutoSaveStatus(status, message) {
-  autosaveStatus.textContent = message;
-  autosaveStatus.className = `autosave-status ${status}`;
 }
 
 function toggleDecisionControls(matchId, prefix) {
