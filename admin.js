@@ -12,7 +12,6 @@ const defaultState = {
 let state = structuredClone(defaultState);
 const adminGroupBody = document.querySelector("#adminGroupBody");
 const adminKnockoutBody = document.querySelector("#adminKnockoutBody");
-const knockoutSetup = document.querySelector("#knockoutSetup");
 const teamProgress = document.querySelector("#teamProgress");
 const adminSecret = document.querySelector("#adminSecret");
 const toast = document.querySelector("#toast");
@@ -27,7 +26,6 @@ async function init() {
   adminSecret.value = localStorage.getItem(adminSecretStorageKey) || "";
   await loadRemoteState();
   renderAdmin();
-  renderKnockoutSetup();
   renderTeamProgress();
 }
 
@@ -52,7 +50,14 @@ function renderAdmin() {
         <tr>
           <td>${phaseBadge(match.phase)}</td>
           <td>${formatDate(match.kickoff)} ${formatTime(match.kickoff)}</td>
-          <td><strong>${teamName(match.home)} - ${teamName(match.away)}</strong></td>
+          <td>${
+            match.stage === "knockout"
+              ? `<div class="match-affiche">
+                  ${teamSelect(`data-match-home="${match.id}"`, match.home)}
+                  ${teamSelect(`data-match-away="${match.id}"`, match.away)}
+                </div>`
+              : `<strong>${teamName(match.home)} - ${teamName(match.away)}</strong>`
+          }</td>
           <td>
             <div class="score-inputs">
               <span class="score-pair">
@@ -72,28 +77,6 @@ function renderAdmin() {
 
   adminGroupBody.innerHTML = rows.filter((row) => row.stage === "group").map((row) => row.html).join("");
   adminKnockoutBody.innerHTML = rows.filter((row) => row.stage === "knockout").map((row) => row.html).join("");
-}
-
-function renderKnockoutSetup() {
-  knockoutSetup.innerHTML = matches
-    .filter((match) => match.stage === "knockout")
-    .map((match) => {
-      const configured = { ...match, ...(state.matchOverrides[match.id] || {}) };
-      return `
-        <article class="setup-card">
-          <h2>${escapeHtml(match.phase)} - ${escapeHtml(match.id)}</h2>
-          <label>
-            Équipe 1
-            ${teamSelect(`data-match-home="${match.id}"`, configured.home)}
-          </label>
-          <label>
-            Équipe 2
-            ${teamSelect(`data-match-away="${match.id}"`, configured.away)}
-          </label>
-        </article>
-      `;
-    })
-    .join("");
 }
 
 function renderTeamProgress() {
@@ -172,7 +155,6 @@ async function saveAdmin() {
 
     state = { ...structuredClone(defaultState), ...(await response.json()) };
     renderAdmin();
-    renderKnockoutSetup();
     showToast("Administration enregistrée");
   } catch (error) {
     showToast(error.message || "Enregistrement impossible");

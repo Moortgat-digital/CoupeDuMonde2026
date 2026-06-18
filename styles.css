@@ -415,6 +415,18 @@ tbody tr:nth-child(even) {
   white-space: nowrap;
 }
 
+/* Édition de l'affiche (équipes) directement dans le tableau admin. */
+.match-affiche {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 170px;
+}
+
+.match-affiche select {
+  width: 100%;
+}
+
 .prediction-column,
 .prediction-cell {
   white-space: nowrap;
