@@ -783,23 +783,6 @@ tbody tr:nth-child(even) {
   vertical-align: middle;
 }
 
-.leader-trend {
-  font-size: 12px;
-  line-height: 1;
-}
-
-.leader-trend.trend-up {
-  color: #16a34a;
-}
-
-.leader-trend.trend-down {
-  color: #ea580c;
-}
-
-.leader-trend.trend-flat {
-  color: #94a3b8;
-}
-
 .leader-form {
   display: inline-flex;
   gap: 3px;
