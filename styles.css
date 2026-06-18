@@ -415,16 +415,24 @@ tbody tr:nth-child(even) {
   white-space: nowrap;
 }
 
-/* Édition de l'affiche (équipes) directement dans le tableau admin. */
+/* Édition de l'affiche (équipes) directement dans le tableau admin,
+   les deux menus tiennent sur une seule ligne. */
 .match-affiche {
   display: flex;
-  flex-direction: column;
-  gap: 4px;
-  min-width: 170px;
+  align-items: center;
+  gap: 6px;
+  min-width: 280px;
 }
 
 .match-affiche select {
-  width: 100%;
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: 220px;
+}
+
+.affiche-sep {
+  flex: 0 0 auto;
+  color: var(--muted);
 }
 
 .prediction-column,
