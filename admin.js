@@ -53,8 +53,9 @@ function renderAdmin() {
           <td>${
             match.stage === "knockout"
               ? `<div class="match-affiche">
-                  ${teamSelect(`data-match-home="${match.id}"`, match.home)}
-                  ${teamSelect(`data-match-away="${match.id}"`, match.away)}
+                  ${afficheSelect(`data-match-home="${match.id}"`, match.home, match.phase)}
+                  <span class="affiche-sep">-</span>
+                  ${afficheSelect(`data-match-away="${match.id}"`, match.away, match.phase)}
                 </div>`
               : `<strong>${teamName(match.home)} - ${teamName(match.away)}</strong>`
           }</td>
@@ -174,11 +175,37 @@ function phaseBadge(phase) {
   return `<span class="phase-badge group-${groupMatch[1].toLowerCase()}">${escapeHtml(phase)}</span>`;
 }
 
-function teamSelect(attribute, selected) {
+// Échelle de progression (de la moins avancée à la plus avancée).
+const progressOrder = ["none", "r32", "r16", "qf", "sf", "final", "champion"];
+
+// Progression minimale requise pour qu'une équipe puisse figurer dans une affiche
+// de cette phase (renseignée via « Parcours des équipes »).
+const phaseMinProgress = {
+  "Seizième": "r32",
+  "Huitième": "r16",
+  "Quart": "qf",
+  "Demi": "sf",
+  "3e place": "sf",
+  "Finale": "final",
+};
+
+function qualifiedTeamsForPhase(phase) {
+  const minProgress = phaseMinProgress[phase];
+  if (!minProgress) return teams;
+
+  const minIndex = progressOrder.indexOf(minProgress);
+  return teams.filter((team) => progressOrder.indexOf(state.teamProgress[team] || "none") >= minIndex);
+}
+
+function afficheSelect(attribute, selected, phase) {
+  const options = qualifiedTeamsForPhase(phase);
+  // On garde toujours la valeur courante (libellé générique ou équipe déjà
+  // choisie) en tête, même si elle ne passe pas le filtre.
+  const list = options.includes(selected) ? options : [selected, ...options];
+
   return `
     <select ${attribute}>
-      <option value="${escapeHtml(selected)}">${escapeHtml(selected)}</option>
-      ${teams.map((team) => `<option value="${escapeHtml(team)}" ${selected === team ? "selected" : ""}>${escapeHtml(team)}</option>`).join("")}
+      ${list.map((team) => `<option value="${escapeHtml(team)}" ${selected === team ? "selected" : ""}>${escapeHtml(team)}</option>`).join("")}
     </select>
   `;
 }
