@@ -745,13 +745,20 @@ tbody tr:nth-child(even) {
 }
 
 .leaderboard-table {
-  min-width: 520px;
+  min-width: 460px;
 }
 
 .rank {
   font-size: 20px;
   font-weight: 700;
+  width: 72px;
+}
+
+/* Les trois colonnes chiffrées (Points, Bonus vainqueur, Scores exacts)
+   partagent la même largeur réduite et restent centrées sur leur contenu. */
+.num-col {
   width: 80px;
+  text-align: center;
 }
 
 .leader-name {
@@ -779,37 +786,21 @@ tbody tr:nth-child(even) {
 }
 
 .leader-points {
-  border-radius: 6px;
-  font-size: 22px;
+  font-size: 16px;
   font-weight: 700;
   color: var(--brand);
   text-align: center;
 }
 
-.leader-points.leader-score-top {
-  background: #16a34a;
-  color: #ffffff;
-}
-
-.leader-points.leader-score-high {
-  background: #bbf7d0;
-  color: #14532d;
-}
-
-.leader-points.leader-score-mid {
-  background: #fef3c7;
-  color: #854d0e;
-}
-
-.leader-points.leader-score-low {
-  background: #fecaca;
-  color: #7f1d1d;
-}
-
-.leader-points.leader-score-zero {
-  background: #fee2e2;
-  color: #991b1b;
-}
+/* Dégradé continu rouge → ambre → vert, du plus faible (0) au plus fort (7). */
+.leader-points.leader-score-0 { background: #ef4444; color: #ffffff; }
+.leader-points.leader-score-1 { background: #f87171; color: #ffffff; }
+.leader-points.leader-score-2 { background: #fca5a5; color: #7f1d1d; }
+.leader-points.leader-score-3 { background: #fdba74; color: #7c2d12; }
+.leader-points.leader-score-4 { background: #fde047; color: #713f12; }
+.leader-points.leader-score-5 { background: #bef264; color: #3f6212; }
+.leader-points.leader-score-6 { background: #4ade80; color: #14532d; }
+.leader-points.leader-score-7 { background: #16a34a; color: #ffffff; }
 
 .rules-grid {
   display: grid;
@@ -991,18 +982,11 @@ dd {
 
   .leaderboard-table th:nth-child(1),
   .leaderboard-table td:nth-child(1) {
-    width: 40px;
+    width: 34px;
   }
 
-  .leaderboard-table th:nth-child(3),
-  .leaderboard-table td:nth-child(3) {
-    width: 58px;
-  }
-
-  .leaderboard-table th:nth-child(4),
-  .leaderboard-table td:nth-child(4) {
-    width: 48px;
-    text-align: center;
+  .leaderboard-table .num-col {
+    width: 52px;
   }
 
   .leaderboard-table .rank {

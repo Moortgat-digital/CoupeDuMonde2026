@@ -316,6 +316,7 @@ function renderLeaderboard() {
       participant,
       isExternal: externalParticipants.includes(participant),
       points: scoreParticipant(participant),
+      championBonus: scoreChampion(state.predictions[participant]?.champion || ""),
       exactScores: countExactScores(participant),
     }))
     .sort((a, b) => b.points - a.points || b.exactScores - a.exactScores || a.participant.localeCompare(b.participant, "fr"));
@@ -347,8 +348,9 @@ function renderLeaderboard() {
         <tr class="${row.isExternal ? "external-participant" : ""}">
           <td class="rank">${displayedRank}</td>
           <td class="leader-name">${escapeHtml(row.participant)}${row.isExternal ? ` <span class="external-label">Externe</span>` : ""}</td>
-          <td class="leader-points ${leaderboardPointsClass(row.points, minPoints, maxPoints)}">${row.points} pts</td>
-          <td>${row.exactScores}</td>
+          <td class="num-col leader-points ${leaderboardPointsClass(row.points, minPoints, maxPoints)}">${row.points}</td>
+          <td class="num-col">${row.championBonus}</td>
+          <td class="num-col">${row.exactScores}</td>
         </tr>
       `;
     })
@@ -361,8 +363,9 @@ function renderLeaderboard() {
           <tr>
             <th>Rang</th>
             <th>Participant</th>
-            <th>Points</th>
-            <th>Scores exacts</th>
+            <th class="num-col">Points</th>
+            <th class="num-col">Bonus vainqueur</th>
+            <th class="num-col">Scores exacts</th>
           </tr>
         </thead>
         <tbody>${body}</tbody>
@@ -781,14 +784,11 @@ function pointsClass(points) {
 }
 
 function leaderboardPointsClass(points, minPoints, maxPoints) {
-  if (points === 0) return "leader-score-zero";
-  if (minPoints === maxPoints) return "leader-score-top";
+  if (points === 0) return "leader-score-0";
+  if (minPoints === maxPoints) return "leader-score-7";
 
   const ratio = (points - minPoints) / (maxPoints - minPoints);
-  if (ratio >= 0.8) return "leader-score-top";
-  if (ratio >= 0.55) return "leader-score-high";
-  if (ratio >= 0.3) return "leader-score-mid";
-  return "leader-score-low";
+  return `leader-score-${Math.round(ratio * 7)}`;
 }
 
 function showToast(message) {
