@@ -58,7 +58,7 @@ function renderAdmin() {
                   ${afficheSelect(`data-match-away="${match.id}"`, match.away, match.phase)}
                 </div>`
               : `<strong>${teamName(match.home)} - ${teamName(match.away)}</strong>`
-          }</td>
+          }<div class="admin-match-meta">${phaseBadge(match.phase)}<span>${formatDate(match.kickoff)}</span><span>${formatTime(match.kickoff)}</span></div></td>
           <td>
             <div class="score-inputs">
               <span class="score-pair">
