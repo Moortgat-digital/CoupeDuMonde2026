@@ -435,6 +435,12 @@ tbody tr:nth-child(even) {
   color: var(--muted);
 }
 
+/* La méta (groupe + date + heure) ne sert qu'en vue mobile, où les colonnes
+   Phase et Date sont masquées. */
+.admin-match-meta {
+  display: none;
+}
+
 .prediction-column,
 .prediction-cell {
   white-space: nowrap;
@@ -1013,6 +1019,58 @@ dd {
   .predictions-table input[type="number"] {
     width: 44px;
     padding: 0 4px;
+  }
+
+  /* Admin : on replie groupe + date + heure sous le match, on masque les
+     colonnes Phase/Date (et Qualifié/Mode en phase de poule) pour atteindre
+     le score sans défilement horizontal. */
+  .admin-table {
+    min-width: 0;
+  }
+
+  .admin-table th,
+  .admin-table td {
+    padding: 8px 6px;
+    font-size: 13px;
+  }
+
+  .admin-table th:nth-child(1),
+  .admin-table td:nth-child(1),
+  .admin-table th:nth-child(2),
+  .admin-table td:nth-child(2) {
+    display: none;
+  }
+
+  .admin-group-table th:nth-child(5),
+  .admin-group-table td:nth-child(5),
+  .admin-group-table th:nth-child(6),
+  .admin-group-table td:nth-child(6) {
+    display: none;
+  }
+
+  .admin-table input[type="number"] {
+    width: 42px;
+    padding: 0 4px;
+  }
+
+  .match-affiche {
+    min-width: 0;
+  }
+
+  .admin-match-meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 6px;
+    color: var(--muted);
+    font-size: 12px;
+  }
+
+  .admin-match-meta .phase-badge {
+    min-height: 19px;
+    padding: 0 8px;
+    font-size: 11px;
   }
 
   .leaderboard-table {
