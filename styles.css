@@ -749,9 +749,10 @@ tbody tr:nth-child(even) {
 }
 
 .rank {
-  font-size: 20px;
-  font-weight: 700;
-  width: 72px;
+  font-size: 14px;
+  font-weight: 500;
+  width: 44px;
+  color: var(--muted);
 }
 
 /* Les trois colonnes chiffrées (Points, Bonus vainqueur, Scores exacts)
@@ -762,7 +763,7 @@ tbody tr:nth-child(even) {
 }
 
 .leader-name {
-  font-weight: 650;
+  font-weight: 400;
 }
 
 .external-participant > td:not(.leader-points) {
@@ -990,7 +991,7 @@ dd {
   }
 
   .leaderboard-table .rank {
-    font-size: 15px;
+    font-size: 13px;
   }
 
   .leaderboard-table .leader-name {
