@@ -148,9 +148,11 @@ function renderPredictionRow(match) {
         </td>
         <td class="prediction-cell">
           <div class="score-inputs">
-            <input type="number" min="0" max="30" data-pred-home="${match.id}" value="${valueOrEmpty(matchPrediction.homeScore)}" ${locked ? "disabled" : ""}>
-            <span>-</span>
-            <input type="number" min="0" max="30" data-pred-away="${match.id}" value="${valueOrEmpty(matchPrediction.awayScore)}" ${locked ? "disabled" : ""}>
+            <span class="score-pair">
+              <input type="number" min="0" max="30" data-pred-home="${match.id}" value="${valueOrEmpty(matchPrediction.homeScore)}" ${locked ? "disabled" : ""}>
+              <span>-</span>
+              <input type="number" min="0" max="30" data-pred-away="${match.id}" value="${valueOrEmpty(matchPrediction.awayScore)}" ${locked ? "disabled" : ""}>
+            </span>
             ${match.stage === "knockout" ? knockoutDecisionControls(match, matchPrediction, locked, "pred") : ""}
           </div>
           ${locked ? `<div class="locked">Verrouillé</div>` : ""}
@@ -329,6 +331,8 @@ function renderLeaderboard() {
   const pointValues = rows.map((row) => row.points);
   const minPoints = Math.min(...pointValues);
   const maxPoints = Math.max(...pointValues);
+  const currentRanks = buildLeaderboardRanks(state.results);
+  const previousRanks = buildLeaderboardRanks(resultsBeforeLastDay());
   let currentRank = 0;
   let previousRankedParticipant = null;
   const body = rows
@@ -347,7 +351,11 @@ function renderLeaderboard() {
       return `
         <tr class="${row.isExternal ? "external-participant" : ""}">
           <td class="rank">${displayedRank}</td>
-          <td class="leader-name">${escapeHtml(row.participant)}${row.isExternal ? ` <span class="external-label">Externe</span>` : ""}</td>
+          <td class="leader-name">${escapeHtml(row.participant)}${
+            row.isExternal
+              ? ` <span class="external-label">Externe</span>`
+              : ` <span class="leader-insights">${renderTrend(row.participant, currentRanks, previousRanks)}${renderRecentForm(row.participant)}</span>`
+          }</td>
           <td class="num-col leader-points ${leaderboardPointsClass(row.points, minPoints, maxPoints)}">${row.points}</td>
           <td class="num-col">${row.championBonus}</td>
           <td class="num-col">${row.exactScores}</td>
@@ -467,20 +475,86 @@ function getParticipantPrediction(participant) {
   return state.predictions[participant];
 }
 
-function scoreParticipant(participant) {
+function scoreParticipant(participant, results = state.results) {
   const prediction = getParticipantPrediction(participant);
   const matchPoints = getConfiguredMatches().reduce((total, match) => {
-    return total + scoreMatch(match, prediction.matches?.[match.id] || {}, state.results[match.id] || {});
+    return total + scoreMatch(match, prediction.matches?.[match.id] || {}, results[match.id] || {});
   }, 0);
 
   return matchPoints + scoreChampion(prediction.champion);
 }
 
-function countExactScores(participant) {
+function countExactScores(participant, results = state.results) {
   const prediction = getParticipantPrediction(participant);
   return getConfiguredMatches().reduce((total, match) => {
-    return total + (isExactScore(prediction.matches?.[match.id] || {}, state.results[match.id] || {}) ? 1 : 0);
+    return total + (isExactScore(prediction.matches?.[match.id] || {}, results[match.id] || {}) ? 1 : 0);
   }, 0);
+}
+
+function buildLeaderboardRanks(results) {
+  if (Object.keys(results).length === 0) return new Map();
+
+  const ordered = participants
+    .filter((participant) => !externalParticipants.includes(participant))
+    .filter(hasParticipantPrediction)
+    .map((participant) => ({
+      participant,
+      points: scoreParticipant(participant, results),
+      exactScores: countExactScores(participant, results),
+    }))
+    .sort((a, b) => b.points - a.points || b.exactScores - a.exactScores || a.participant.localeCompare(b.participant, "fr"));
+
+  const ranks = new Map();
+  let rank = 0;
+  let previous = null;
+  ordered.forEach((row) => {
+    if (!previous || previous.points !== row.points || previous.exactScores !== row.exactScores) rank += 1;
+    ranks.set(row.participant, rank);
+    previous = row;
+  });
+  return ranks;
+}
+
+// Résultats en ignorant la dernière journée disputée, pour comparer le
+// classement "avant" et "maintenant" et en déduire une tendance.
+function resultsBeforeLastDay() {
+  const completed = getConfiguredMatches().filter((match) => hasScore(state.results[match.id] || {}));
+  if (completed.length === 0) return {};
+
+  const lastDay = completed[completed.length - 1].kickoff.slice(0, 10);
+  const results = {};
+  completed.forEach((match) => {
+    if (match.kickoff.slice(0, 10) !== lastDay) results[match.id] = state.results[match.id];
+  });
+  return results;
+}
+
+function renderTrend(participant, currentRanks, previousRanks) {
+  const current = currentRanks.get(participant);
+  const previous = previousRanks.get(participant);
+
+  if (!current || !previous || current === previous) {
+    return `<span class="leader-trend trend-flat" title="Position stable">–</span>`;
+  }
+  if (current < previous) {
+    return `<span class="leader-trend trend-up" title="En progression (${previous}ᵉ → ${current}ᵉ)">▲</span>`;
+  }
+  return `<span class="leader-trend trend-down" title="En recul (${previous}ᵉ → ${current}ᵉ)">▼</span>`;
+}
+
+function renderRecentForm(participant) {
+  const prediction = getParticipantPrediction(participant);
+  const recent = getConfiguredMatches()
+    .filter((match) => hasScore(state.results[match.id] || {}))
+    .slice(-5)
+    .map((match) => scoreMatch(match, prediction.matches?.[match.id] || {}, state.results[match.id]));
+
+  if (recent.length === 0) return "";
+
+  const pills = recent
+    .map((points) => `<em class="point-badge form-pill ${pointsClass(points)}" title="${points} pt${points > 1 ? "s" : ""}">${points}</em>`)
+    .join("");
+  return `<span class="leader-form">${pills}</span>`;
 }
 
 function computeGroupStandings(phaseMatches) {

@@ -55,9 +55,11 @@ function renderAdmin() {
           <td><strong>${teamName(match.home)} - ${teamName(match.away)}</strong></td>
           <td>
             <div class="score-inputs">
-              <input type="number" min="0" max="30" data-result-home="${match.id}" value="${valueOrEmpty(result.homeScore)}">
-              <span>-</span>
-              <input type="number" min="0" max="30" data-result-away="${match.id}" value="${valueOrEmpty(result.awayScore)}">
+              <span class="score-pair">
+                <input type="number" min="0" max="30" data-result-home="${match.id}" value="${valueOrEmpty(result.homeScore)}">
+                <span>-</span>
+                <input type="number" min="0" max="30" data-result-away="${match.id}" value="${valueOrEmpty(result.awayScore)}">
+              </span>
             </div>
           </td>
           <td colspan="${match.stage === "knockout" ? "2" : "1"}">${match.stage === "knockout" ? knockoutDecisionControls(match, result, false, "result") : "-"}</td>

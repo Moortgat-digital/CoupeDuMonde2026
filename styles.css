@@ -406,6 +406,15 @@ tbody tr:nth-child(even) {
   gap: 6px;
 }
 
+/* La paire de scores (saisie ou affichage) reste toujours sur une ligne. */
+.score-pair {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 6px;
+  white-space: nowrap;
+}
+
 .prediction-column,
 .prediction-cell {
   white-space: nowrap;
@@ -766,6 +775,44 @@ tbody tr:nth-child(even) {
   font-weight: 400;
 }
 
+.leader-insights {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+
+.leader-trend {
+  font-size: 12px;
+  line-height: 1;
+}
+
+.leader-trend.trend-up {
+  color: #16a34a;
+}
+
+.leader-trend.trend-down {
+  color: #ea580c;
+}
+
+.leader-trend.trend-flat {
+  color: #94a3b8;
+}
+
+.leader-form {
+  display: inline-flex;
+  gap: 3px;
+}
+
+.form-pill {
+  min-width: 18px;
+  min-height: 18px;
+  padding: 0 3px;
+  border-radius: 4px;
+  font-size: 11px;
+}
+
 .external-participant > td:not(.leader-points) {
   background: #e5e7eb;
   color: #64748b;
@@ -1007,6 +1054,10 @@ dd {
   }
 
   .leaderboard-table .external-label {
+    display: none;
+  }
+
+  .leader-insights {
     display: none;
   }
 
