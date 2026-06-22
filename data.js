@@ -146,8 +146,8 @@ window.APP_DATA = {
     { id: "c2", phase: "Groupe C", stage: "group", kickoff: "2026-06-14T03:00:00+02:00", home: "Haïti", away: "Écosse" },
     { id: "c3", phase: "Groupe C", stage: "group", kickoff: "2026-06-20T00:00:00+02:00", home: "Écosse", away: "Maroc" },
     { id: "c4", phase: "Groupe C", stage: "group", kickoff: "2026-06-20T03:00:00+02:00", home: "Brésil", away: "Haïti" },
-    { id: "c5", phase: "Groupe C", stage: "group", kickoff: "2026-06-24T00:00:00+02:00", home: "Écosse", away: "Brésil" },
-    { id: "c6", phase: "Groupe C", stage: "group", kickoff: "2026-06-24T00:00:00+02:00", home: "Maroc", away: "Haïti" },
+    { id: "c5", phase: "Groupe C", stage: "group", kickoff: "2026-06-25T00:00:00+02:00", home: "Écosse", away: "Brésil" },
+    { id: "c6", phase: "Groupe C", stage: "group", kickoff: "2026-06-25T00:00:00+02:00", home: "Maroc", away: "Haïti" },
 
     { id: "d1", phase: "Groupe D", stage: "group", kickoff: "2026-06-13T03:00:00+02:00", home: "États-Unis", away: "Paraguay" },
     { id: "d2", phase: "Groupe D", stage: "group", kickoff: "2026-06-14T06:00:00+02:00", home: "Australie", away: "Turquie" },
