@@ -523,6 +523,12 @@ tbody tr:nth-child(even) {
   font-weight: 600;
 }
 
+.tiebreak-note {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
 .inline-meta {
   display: inline;
 }

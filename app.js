@@ -326,7 +326,7 @@ function renderLeaderboard() {
       championBonus: scoreChampion(state.predictions[participant]?.champion || ""),
       exactScores: countExactScores(participant),
     }))
-    .sort((a, b) => b.points - a.points || b.exactScores - a.exactScores || a.participant.localeCompare(b.participant, "fr"));
+    .sort((a, b) => b.points - a.points || b.exactScores - a.exactScores || a.championBonus - b.championBonus || a.participant.localeCompare(b.participant, "fr"));
 
   if (rows.length === 0) {
     leaderboard.innerHTML = `<p class="empty-state">Aucun participant n'a encore enregistré de pronostic.</p>`;
@@ -344,7 +344,8 @@ function renderLeaderboard() {
         !row.isExternal &&
         previousRankedParticipant &&
         previousRankedParticipant.points === row.points &&
-        previousRankedParticipant.exactScores === row.exactScores;
+        previousRankedParticipant.exactScores === row.exactScores &&
+        previousRankedParticipant.championBonus === row.championBonus;
 
       if (!row.isExternal && !isTiedWithPrevious) currentRank += 1;
       if (!row.isExternal) previousRankedParticipant = row;
