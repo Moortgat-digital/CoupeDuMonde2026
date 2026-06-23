@@ -663,6 +663,19 @@ tbody tr:nth-child(even) {
   font-weight: 650;
 }
 
+.champion-pick-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.champion-pick-row .point-badge {
+  flex: 0 0 auto;
+  padding: 0 8px;
+  font-size: 12px;
+}
+
 .point-badge {
   display: inline-flex;
   align-items: center;

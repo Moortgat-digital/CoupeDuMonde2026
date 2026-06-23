@@ -212,14 +212,19 @@ function renderOverviewChampionPicks() {
 
   overviewChampionSection.hidden = picks.length === 0;
   overviewChampionPicks.innerHTML = picks
-    .map(
-      (pick) => `
+    .map((pick) => {
+      const bonus = scoreChampion(pick.champion);
+      const bonusLabel = bonus > 0 ? `+${bonus} pt${bonus > 1 ? "s" : ""}` : "0 pt";
+      return `
         <div class="champion-pick">
           <strong>${escapeHtml(pick.participant)}</strong>
-          <span>${teamName(pick.champion)}</span>
+          <div class="champion-pick-row">
+            <span>${teamName(pick.champion)}</span>
+            <em class="point-badge ${pointsClass(bonus)}" title="Bonus vainqueur">${bonusLabel}</em>
+          </div>
         </div>
-      `,
-    )
+      `;
+    })
     .join("");
 }
 
