@@ -44,6 +44,7 @@ function renderAdmin() {
   const rows = getConfiguredMatches()
     .map((match) => {
       const result = state.results[match.id] || {};
+      const base = matches.find((item) => item.id === match.id) || match;
       return {
         stage: match.stage,
         html: `
@@ -53,9 +54,9 @@ function renderAdmin() {
           <td>${
             match.stage === "knockout"
               ? `<div class="match-affiche">
-                  ${afficheSelect(`data-match-home="${match.id}"`, match.home, match.phase)}
+                  ${afficheSelect(`data-match-home="${match.id}"`, match.home, match.phase, base.home)}
                   <span class="affiche-sep">-</span>
-                  ${afficheSelect(`data-match-away="${match.id}"`, match.away, match.phase)}
+                  ${afficheSelect(`data-match-away="${match.id}"`, match.away, match.phase, base.away)}
                 </div>`
               : `<strong>${teamName(match.home)} - ${teamName(match.away)}</strong>`
           }<div class="admin-match-meta">${phaseBadge(match.phase)}<span>${formatDate(match.kickoff)}</span><span>${formatTime(match.kickoff)}</span></div></td>
@@ -197,15 +198,30 @@ function qualifiedTeamsForPhase(phase) {
   return teams.filter((team) => progressOrder.indexOf(state.teamProgress[team] || "none") >= minIndex);
 }
 
-function afficheSelect(attribute, selected, phase) {
-  const options = qualifiedTeamsForPhase(phase);
-  // On garde toujours la valeur courante (libellé générique ou équipe déjà
-  // choisie) en tête, même si elle ne passe pas le filtre.
-  const list = options.includes(selected) ? options : [selected, ...options];
+function afficheSelect(attribute, selected, phase, baseName) {
+  // Liste ordonnée et dédupliquée : d'abord le nom de base (générique) pour
+  // pouvoir revenir en arrière, puis les équipes qualifiées, et enfin la
+  // valeur courante si elle ne figure pas déjà dans la liste.
+  const seen = new Set();
+  const options = [];
+  const add = (value) => {
+    if (value && !seen.has(value)) {
+      seen.add(value);
+      options.push(value);
+    }
+  };
+  add(baseName);
+  qualifiedTeamsForPhase(phase).forEach(add);
+  add(selected);
 
   return `
     <select ${attribute}>
-      ${list.map((team) => `<option value="${escapeHtml(team)}" ${selected === team ? "selected" : ""}>${escapeHtml(team)}</option>`).join("")}
+      ${options
+        .map((team) => {
+          const label = team === baseName ? `${team} (par défaut)` : team;
+          return `<option value="${escapeHtml(team)}" ${selected === team ? "selected" : ""}>${escapeHtml(label)}</option>`;
+        })
+        .join("")}
     </select>
   `;
 }
