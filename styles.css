@@ -305,6 +305,28 @@ input[type="number"] {
   text-transform: uppercase;
 }
 
+/* Section repliable (accordéon) réutilisant le style de titre de phase. */
+.phase-collapse > summary {
+  cursor: pointer;
+  list-style: none;
+}
+
+.phase-collapse > summary::-webkit-details-marker {
+  display: none;
+}
+
+.phase-collapse > summary::after {
+  content: "\25B8";
+  display: inline-block;
+  margin-left: 8px;
+  color: var(--muted);
+  transition: transform 0.15s ease;
+}
+
+.phase-collapse[open] > summary::after {
+  transform: rotate(90deg);
+}
+
 .phase-badge {
   display: inline-flex;
   align-items: center;
