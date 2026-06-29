@@ -48,22 +48,24 @@
           </div>
 
           <h3 class="major-section-title solo-title">2 - Mes pronostics de matchs</h3>
-          <h3 class="phase-title">Phase de poule</h3>
-          <div class="table-wrap">
-            <table class="matches-table predictions-table">
-              <thead>
-                <tr>
-                  <th>Phase</th>
-                  <th>Date</th>
-                  <th>Match</th>
-                  <th class="prediction-column">Mon prono 90 min</th>
-                  <th>Résultat 90 min</th>
-                  <th>Pts</th>
-                </tr>
-              </thead>
-              <tbody id="groupMatchesBody"></tbody>
-            </table>
-          </div>
+          <details class="phase-collapse">
+            <summary class="phase-title">Phase de poule</summary>
+            <div class="table-wrap">
+              <table class="matches-table predictions-table">
+                <thead>
+                  <tr>
+                    <th>Phase</th>
+                    <th>Date</th>
+                    <th>Match</th>
+                    <th class="prediction-column">Mon prono 90 min</th>
+                    <th>Résultat 90 min</th>
+                    <th>Pts</th>
+                  </tr>
+                </thead>
+                <tbody id="groupMatchesBody"></tbody>
+              </table>
+            </div>
+          </details>
 
           <h3 class="phase-title">Phase finale</h3>
           <div class="table-wrap">
@@ -96,8 +98,10 @@
             <div id="overviewChampionPicks" class="champion-picks"></div>
           </div>
 
-          <h3 class="phase-title">Phase de poule</h3>
-          <div id="overviewGroupBody" class="overview-accordion"></div>
+          <details class="phase-collapse">
+            <summary class="phase-title">Phase de poule</summary>
+            <div id="overviewGroupBody" class="overview-accordion"></div>
+          </details>
 
           <h3 class="phase-title">Phase finale</h3>
           <div id="overviewKnockoutBody" class="overview-accordion"></div>

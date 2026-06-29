@@ -30,23 +30,25 @@
             <button id="saveAdmin" class="primary-action sticky-save" type="button">Enregistrer</button>
           </div>
 
-          <h3 class="phase-title">Phase de poule</h3>
-          <div class="table-wrap">
-            <table class="matches-table admin-table admin-group-table">
-              <thead>
-                <tr>
-                  <th>Phase</th>
-                  <th>Date</th>
-                  <th>Match</th>
-                  <th>Score réel 90 min</th>
-                  <th>Qualifié</th>
-                  <th>Mode qualification</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody id="adminGroupBody"></tbody>
-            </table>
-          </div>
+          <details class="phase-collapse">
+            <summary class="phase-title">Phase de poule</summary>
+            <div class="table-wrap">
+              <table class="matches-table admin-table admin-group-table">
+                <thead>
+                  <tr>
+                    <th>Phase</th>
+                    <th>Date</th>
+                    <th>Match</th>
+                    <th>Score réel 90 min</th>
+                    <th>Qualifié</th>
+                    <th>Mode qualification</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="adminGroupBody"></tbody>
+              </table>
+            </div>
+          </details>
 
           <h3 class="phase-title">Phase finale</h3>
           <div class="table-wrap">
