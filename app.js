@@ -325,6 +325,7 @@ function renderLeaderboard() {
       points: scoreParticipant(participant),
       championBonus: scoreChampion(state.predictions[participant]?.champion || ""),
       exactScores: countExactScores(participant),
+      breakdown: participantBreakdown(participant),
     }))
     .sort((a, b) => b.points - a.points || b.exactScores - a.exactScores || a.championBonus - b.championBonus || a.participant.localeCompare(b.participant, "fr"));
 
@@ -361,8 +362,11 @@ function renderLeaderboard() {
               : ` <span class="leader-insights">${renderRecentForm(row.participant)}</span>`
           }</td>
           <td class="num-col leader-points ${leaderboardPointsClass(row.points, minPoints, maxPoints)}">${row.points}</td>
-          <td class="num-col">${row.championBonus}</td>
+          <td class="num-col">${row.breakdown.tendance}</td>
+          <td class="num-col">${row.breakdown.ecart}</td>
           <td class="num-col">${row.exactScores}</td>
+          <td class="num-col">${row.breakdown.method}</td>
+          <td class="num-col">${row.championBonus}</td>
         </tr>
       `;
     })
@@ -376,8 +380,11 @@ function renderLeaderboard() {
             <th>Rang</th>
             <th>Participant</th>
             <th class="num-col">Points</th>
-            <th class="num-col">Bonus vainqueur</th>
+            <th class="num-col">Bonne tendance</th>
+            <th class="num-col">Bon écart</th>
             <th class="num-col">Scores exacts</th>
+            <th class="num-col">Bonus prolong/TAB</th>
+            <th class="num-col">Bonus vainqueur</th>
           </tr>
         </thead>
         <tbody>${body}</tbody>
@@ -493,6 +500,40 @@ function countExactScores(participant) {
   return getConfiguredMatches().reduce((total, match) => {
     return total + (isExactScore(prediction.matches?.[match.id] || {}, state.results[match.id] || {}) ? 1 : 0);
   }, 0);
+}
+
+// Décompte des composantes de points, aligné sur scoreMatch, pour un classement
+// transparent : bonne tendance (1 pt), bon écart (+1), bonus prolong/TAB (+1).
+function participantBreakdown(participant) {
+  const prediction = getParticipantPrediction(participant);
+  const breakdown = { tendance: 0, ecart: 0, method: 0 };
+
+  getConfiguredMatches().forEach((match) => {
+    const pred = prediction.matches?.[match.id] || {};
+    const result = state.results[match.id] || {};
+    if (!hasScore(pred) || !hasScore(result)) return;
+
+    if (!isExactScore(pred, result) && sameOutcome(pred, result)) {
+      breakdown.tendance += 1;
+      const isDraw = Number(result.homeScore) === Number(result.awayScore);
+      if (!isDraw && sameGoalDifference(pred, result)) breakdown.ecart += 1;
+    }
+
+    if (match.stage === "knockout") {
+      const predictionDecision = getKnockoutDecision(match, pred);
+      const resultDecision = getKnockoutDecision(match, result);
+      if (
+        resultDecision.qualifiedTeam &&
+        predictionDecision.qualifiedTeam === resultDecision.qualifiedTeam &&
+        ["extra_time", "penalties"].includes(resultDecision.qualificationMethod) &&
+        predictionDecision.qualificationMethod === resultDecision.qualificationMethod
+      ) {
+        breakdown.method += 1;
+      }
+    }
+  });
+
+  return breakdown;
 }
 
 function renderRecentForm(participant) {

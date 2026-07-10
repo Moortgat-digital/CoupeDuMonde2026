@@ -821,7 +821,7 @@ tbody tr:nth-child(even) {
 }
 
 .leaderboard-table {
-  min-width: 460px;
+  min-width: 720px;
 }
 
 .rank {
@@ -1114,11 +1114,8 @@ dd {
     font-size: 11px;
   }
 
-  .leaderboard-table {
-    min-width: 0;
-    table-layout: fixed;
-  }
-
+  /* Trop de colonnes de détail pour l'écran : on laisse défiler
+     horizontalement (via .table-wrap) plutôt que d'écraser les colonnes. */
   .leaderboard-table th,
   .leaderboard-table td {
     padding: 8px 6px;
