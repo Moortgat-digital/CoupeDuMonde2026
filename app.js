@@ -365,6 +365,7 @@ function renderLeaderboard() {
           <td class="num-col">${row.breakdown.tendance}</td>
           <td class="num-col">${row.breakdown.ecart}</td>
           <td class="num-col">${row.exactScores}</td>
+          <td class="num-col">${row.breakdown.qualified}</td>
           <td class="num-col">${row.breakdown.method}</td>
           <td class="num-col">${row.championBonus}</td>
         </tr>
@@ -383,6 +384,7 @@ function renderLeaderboard() {
             <th class="num-col">Bonne tendance</th>
             <th class="num-col">Bon écart</th>
             <th class="num-col">Scores exacts</th>
+            <th class="num-col">Bonne équipe qualifiée</th>
             <th class="num-col">Bonus prolong/TAB</th>
             <th class="num-col">Bonus vainqueur</th>
           </tr>
@@ -506,7 +508,7 @@ function countExactScores(participant) {
 // transparent : bonne tendance (1 pt), bon écart (+1), bonus prolong/TAB (+1).
 function participantBreakdown(participant) {
   const prediction = getParticipantPrediction(participant);
-  const breakdown = { tendance: 0, ecart: 0, method: 0 };
+  const breakdown = { tendance: 0, ecart: 0, qualified: 0, method: 0 };
 
   getConfiguredMatches().forEach((match) => {
     const pred = prediction.matches?.[match.id] || {};
@@ -522,13 +524,14 @@ function participantBreakdown(participant) {
     if (match.stage === "knockout") {
       const predictionDecision = getKnockoutDecision(match, pred);
       const resultDecision = getKnockoutDecision(match, result);
-      if (
-        resultDecision.qualifiedTeam &&
-        predictionDecision.qualifiedTeam === resultDecision.qualifiedTeam &&
-        ["extra_time", "penalties"].includes(resultDecision.qualificationMethod) &&
-        predictionDecision.qualificationMethod === resultDecision.qualificationMethod
-      ) {
-        breakdown.method += 1;
+      if (resultDecision.qualifiedTeam && predictionDecision.qualifiedTeam === resultDecision.qualifiedTeam) {
+        breakdown.qualified += 1;
+        if (
+          ["extra_time", "penalties"].includes(resultDecision.qualificationMethod) &&
+          predictionDecision.qualificationMethod === resultDecision.qualificationMethod
+        ) {
+          breakdown.method += 1;
+        }
       }
     }
   });
